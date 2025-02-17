@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/reponse_model.dart';
 
 class ResponseService {
-  final String baseUrl = "http://192.168.1.68:3000/api"; // Remplacez par votre URL d'API
+  final String baseUrl = "http://192.168.1.98:3000/api"; // Remplacez par votre URL d'API
 
   // Récupérer le token d'authentification
   Future<String?> getAuthToken() async {
@@ -57,8 +57,7 @@ class ResponseService {
     },
   );
 
-  print('Réponse de l\'API pour la question $questionId: ${response.body}');
-  print('Code de statut: ${response.statusCode}');
+ 
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);

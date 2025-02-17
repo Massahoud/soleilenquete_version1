@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/chat_model.dart';
 
 class ChatService {
-  final String baseUrl = 'http://localhost:3000/api/chat'; // Replace with your API base URL
+  final String baseUrl = 'http://192.168.1.98:3000/api/chat'; // Replace with your API base URL
 
   // Retrieve the stored authentication token
   Future<String?> getAuthToken() async {

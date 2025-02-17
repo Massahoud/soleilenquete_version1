@@ -5,7 +5,7 @@ import '../models/question_model.dart';
 import '../models/reponse_model.dart';
 
 class QuestionService {
-  final String baseUrl = "http://192.168.1.68:3000/api"; // Remplacez par votre URL d'API
+  final String baseUrl = "http://192.168.1.98:3000/api"; // Remplacez par votre URL d'API
 
   // Récupérer le token d'authentification
   Future<String?> getAuthToken() async {
@@ -59,9 +59,7 @@ class QuestionService {
   final token = await getAuthToken();
   final url = '$baseUrl/questions';
 
-  print('URL API : $url');
-  print('Token utilisé : $token');
-  print('Données envoyées : ${json.encode(question.toJson())}');
+
 
   final response = await http.post(
     Uri.parse(url),
@@ -72,8 +70,7 @@ class QuestionService {
     body: json.encode(question.toJson()),
   );
 
-  print('Statut HTTP : ${response.statusCode}');
-  print('Réponse brute : ${response.body}');
+  
 
   // Vérification des erreurs et du statut HTTP
   if (response.statusCode == 201) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/models/group_model.dart';
 import 'package:soleilenquete/services/group_service.dart';
-import 'package:soleilenquete/views/create_group_page.dart';
-import 'package:soleilenquete/views/update_group_page.dart';
+import 'package:soleilenquete/views/groupes/create_group_page.dart';
+import 'package:soleilenquete/views/groupes/update_group_page.dart';
 
 class GroupsListPage extends StatefulWidget {
   @override

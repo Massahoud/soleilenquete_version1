@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = "http://192.168.1.68:3000/api"; // Remplacez par l'URL de votre API
+  final String baseUrl = "http://192.168.1.98:3000/api"; 
 
   Future<void> login(String email, String password) async {
     final response = await http.post(
@@ -20,16 +20,24 @@ class AuthService {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       final token = responseBody['token'];
-      final userId = responseBody['user_id']; // Suppose que l'ID utilisateur est renvoyé sous 'user_id'
-      
-      // Enregistrer le token et l'ID de l'utilisateur dans les préférences partagées
+      final userId = responseBody['user_id'];
+      final role = responseBody['role']; 
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('authToken', token);
       await prefs.setString('userId', userId);
+      await prefs.setString('userRole', role);
 
-      print('Connexion réussie : Token et ID utilisateur enregistrés.');
+      print('Connexion réussie.');
+    } else if (response.statusCode == 429) {
+      throw Exception('Trop de tentatives de connexion. Réessayez plus tard.');
     } else {
-      throw Exception('Failed to login: ${response.statusCode} ${response.body}');
+      throw Exception('Échec de la connexion: ${response.statusCode} ${response.body}');
     }
+  }
+
+  Future<String?> getUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userRole');
   }
 }

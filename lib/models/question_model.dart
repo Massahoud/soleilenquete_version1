@@ -1,6 +1,6 @@
 class Question {
   final String? id; // L'ID peut être null au départ
-  final int numero; // Le numéro est un entier
+  final String numero; // Le numéro est un entier
   final String question_text; // Le texte de la question
   final String? commentaire; // Commentaire optionnel
   final String type; // Type obligatoire
@@ -28,7 +28,7 @@ class Question {
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
       id: json['id'], // L'ID est une chaîne ou null
-      numero: int.tryParse(json['numero']?.toString() ?? '0') ?? 0, // Conversion sécurisée en entier
+      numero: json['numero']?.toString() ?? '', // Conversion sécurisée en entier
       question_text: json['question_text'] ?? '', // Défaut à chaîne vide
       commentaire: json['commentaire'], // Peut être null
       type: json['type'] ?? '', // Défaut à chaîne vide

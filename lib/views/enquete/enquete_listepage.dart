@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/services/enquete_service.dart';
-import 'package:soleilenquete/views/enquete_detail.dart';
+import 'package:soleilenquete/views/enquete/enquete_detail.dart';
 
 
 class EnqueteListePage extends StatefulWidget {

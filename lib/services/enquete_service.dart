@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EnqueteService {
-  final String baseUrl = "http://192.168.1.68:3000"; // Remplacez par l'URL publique si nécessaire.
+  final String baseUrl = "http://192.168.1.98:3000"; // Remplacez par l'URL publique si nécessaire.
 
   // Enregistrer le token dans SharedPreferences
   Future<void> setAuthToken(String token) async {

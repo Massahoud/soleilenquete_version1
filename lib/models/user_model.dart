@@ -8,6 +8,9 @@ class UserModel {
   String statut;
   String groupe;
   String? photo;
+  String? date_creation;
+   String? numero;
+  
 
   UserModel({
     this.id,
@@ -19,6 +22,8 @@ class UserModel {
     required this.statut,
     required this.groupe,
     this.photo,
+   this.date_creation,
+   this.numero,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +37,8 @@ class UserModel {
       statut: json['statut'],
       groupe: json['groupe'],
       photo: json['photo'],
+      date_creation: json['date_creation'],
+      numero:json['numero'],
     );
   }
 
@@ -46,6 +53,8 @@ class UserModel {
       'statut': statut,
       'groupe': groupe,
       'photo': photo,
+       'date_creation': date_creation,
+       'numero': numero,
     };
   }
 }
