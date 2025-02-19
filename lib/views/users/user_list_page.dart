@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:soleilenquete/component/filters.dart';
-import 'package:soleilenquete/component/search_bar.dart';
+import 'package:soleilenquete/component/filtre/filtreUser.dart';
 import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/views/HomePage.dart';
 import 'package:soleilenquete/services/profil_service.dart';
-import 'package:soleilenquete/widget/miseajour.dart';
+import 'package:soleilenquete/widget/tableauhead.dart';
 import 'package:soleilenquete/widget/user_card.dart';
 
 class UserListPage extends StatefulWidget {
@@ -154,7 +153,7 @@ class _UserListState extends State<UserListPage> {
                     ),
                   ],
                 ),
-                Filters(),
+                FiltersUSers(),
                 SizedBox(height: 20),
                 Group228Widget(),
                 Expanded(
@@ -178,7 +177,7 @@ class _UserListState extends State<UserListPage> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/login'); 
+                                      Navigator.pushReplacementNamed(context, '/dashboard'); 
                                       // Rediriger vers la page de connexion si nécessaire
                                     },
                                     child: Text("OK"),

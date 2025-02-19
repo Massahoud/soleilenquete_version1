@@ -14,7 +14,7 @@ class SurveyModel {
   String? photoUrl;
   double? latitude;
   double? longitude;
-
+String  avisEnqueteur;
   SurveyModel({
     this.id,
     required this.numero,
@@ -31,6 +31,7 @@ class SurveyModel {
     this.photoUrl,
     this.latitude,
     this.longitude,
+    required this.avisEnqueteur,
   });
 
   // Convertir en JSON pour Firestore ou API
@@ -46,35 +47,47 @@ class SurveyModel {
       'contact_enfant': contactEnfant,
       'nomcontact_enfant': nomContactEnfant,
       'lieuenquete': lieuEnquete,
-      'date_heure_debut': dateHeureDebut?.toIso8601String(),
+      'date_heure_debut': dateHeureDebut?.millisecondsSinceEpoch, // Converti en timestamp (millisecondes)
       'photo_url': photoUrl,
       'geolocalisation': {
-        'latitude': latitude,
+        'latitude': latitude,  // Utilisation directe de Map
         'longitude': longitude,
+        
       },
+      'avisEnqueteur': avisEnqueteur,
     };
   }
 
- factory SurveyModel.fromJson(Map<String, dynamic> json) {
-  return SurveyModel(
-    id: json['id'] ?? json['_id'], // Vérifie si l'ID est présent
-    numero: json['numero'] ?? '',
-    nomEnqueteur: json['nom_enqueteur'] ?? '',
-    prenomEnqueteur: json['prenom_enqueteur'] ?? '',
-    nomEnfant: json['nom_enfant'] ?? '',
-    prenomEnfant: json['prenom_enfant'] ?? '',
-    sexeEnfant: json['sexe_enfant'] ?? '',
-    ageEnfant: json['age_enfant'] ?? '',
-    contactEnfant: json['contact_enfant'] ?? '',
-    nomContactEnfant: json['nomcontact_enfant'] ?? '',
-    lieuEnquete: json['lieuenquete'] ?? '',
-    dateHeureDebut: json['date_heure_debut'] != null
-        ? DateTime.tryParse(json['date_heure_debut'])
-        : null,
-    photoUrl: json['photo_url'],
-    latitude: (json['geolocalisation'] != null) ? json['geolocalisation']['latitude']?.toDouble() : null,
-    longitude: (json['geolocalisation'] != null) ? json['geolocalisation']['longitude']?.toDouble() : null,
-  );
-}
+  // Convertir de JSON en objet SurveyModel
+  factory SurveyModel.fromJson(Map<String, dynamic> json) {
+    return SurveyModel(
+      id: json['id'] ?? json['_id'], 
+      numero: json['numero'] ?? '',
+      nomEnqueteur: json['nom_enqueteur'] ?? '',
+      prenomEnqueteur: json['prenom_enqueteur'] ?? '',
+      nomEnfant: json['nom_enfant'] ?? '',
+      prenomEnfant: json['prenom_enfant'] ?? '',
+      sexeEnfant: json['sexe_enfant'] ?? '',
+      ageEnfant: json['age_enfant'] ?? '',
+      contactEnfant: json['contact_enfant'] ?? '',
+      nomContactEnfant: json['nomcontact_enfant'] ?? '',
+      lieuEnquete: json['lieuenquete'] ?? '',
+      dateHeureDebut: json['date_heure_debut'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['date_heure_debut'])
+          : null,
+      photoUrl: json['photo_url'],
+     latitude: (json['geolocalisation'] as Map<String, dynamic>)['latitude'] as double,
+    longitude: (json['geolocalisation'] as Map<String, dynamic>)['longitude'] as double,
+    avisEnqueteur: json['avisEnqueteur']??'',
+    );
+  }
 
+  // Redéfinir la méthode toString pour un affichage lisible
+  @override
+  String toString() {
+    return 'SurveyModel(id: $id, numero: $numero, nomEnqueteur: $nomEnqueteur, prenomEnqueteur: $prenomEnqueteur, '
+        'nomEnfant: $nomEnfant, prenomEnfant: $prenomEnfant, sexeEnfant: $sexeEnfant, ageEnfant: $ageEnfant, '
+        'contactEnfant: $contactEnfant, nomContactEnfant: $nomContactEnfant, lieuEnquete: $lieuEnquete, '
+        'dateHeureDebut: $dateHeureDebut, photoUrl: $photoUrl, latitude: $latitude, longitude: $longitude)';
+  }
 }

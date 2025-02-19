@@ -10,11 +10,8 @@ import 'package:soleilenquete/models/survey_model.dart';
 
 import 'package:soleilenquete/services/survey_service.dart';
 
-import 'dart:typed_data';
-// Pour les fichiers en mémoire sur Web
-import 'package:flutter/foundation.dart'; // Pour détecter Web ou Mobile
-// UI Flutter
-import 'package:image_picker/image_picker.dart'; // Sélection d'images
+import 'package:flutter/foundation.dart'; 
+import 'package:image_picker/image_picker.dart';
 
 class StartSurveyPage extends StatefulWidget {
   @override
@@ -44,6 +41,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
   String selectedlieuType = 'koudougou';
 
   bool _isUploading = false;
+  SurveyModel? _tempSurvey;
 
   late Future<String> nextNumberOrder;
   late TextEditingController numeroController;
@@ -105,8 +103,6 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     }
   }
 
-  
-
   Future<void> _getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -137,51 +133,64 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     });
   }
 
-  Future<void> _saveSurvey() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _savePartialSurvey() async {
+    // Vérification de l'image et assignation de l'URL de l'image
+    String? imageUrl;
 
-    _formKey.currentState!.save();
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-     final newSurvey = SurveyModel(
-  id: '',
-  numero: numeroController.text.isNotEmpty ? numeroController.text : 'N/A',
-  prenomEnqueteur: prenomController.text.isNotEmpty ? prenomController.text : 'N/A',
-  nomEnqueteur: nomController.text.isNotEmpty ? nomController.text : 'N/A',
-  prenomEnfant: prenomenfantController.text.isNotEmpty ? prenomenfantController.text : 'N/A',
-  nomEnfant: nomenfantController.text.isNotEmpty ? nomenfantController.text : 'N/A',
-  sexeEnfant: selectedSexeType ?? 'Non spécifié',
-  contactEnfant: contactenfantController.text.isNotEmpty ? contactenfantController.text : 'N/A',
-  nomContactEnfant: nomcontactenfantController.text.isNotEmpty ? nomcontactenfantController.text : 'N/A',
-  ageEnfant: ageenfantController.text.isNotEmpty ? ageenfantController.text : '0',
-  lieuEnquete: selectedlieuType ?? 'Non spécifié',
-  dateHeureDebut: selectedDateTime ?? DateTime.now(),
-  latitude: locationData?.latitude ?? 0.0,
-  longitude: locationData?.longitude ?? 0.0,
-  photoUrl: '',
-);
-
-      await _surveyService.createSurvey(newSurvey, _imageFile);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Survey created successfully')),
-      );
-
-      Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create survey: ${e.toString()}')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+    if (_image != null) {
+      // Si l'image est locale (fichier), obtenir son chemin (ou une URL locale si nécessaire)
+      imageUrl = _image!
+          .path; // Utiliser un chemin de fichier local ou transformer en URL si besoin
+      print("Image locale utilisée : $imageUrl");
+    } else if (_imageFile != null) {
+      // Si c'est un fichier Blob (web), générer une URL pour l'image
+      imageUrl = html.Url.createObjectUrl(_imageFile!);
+      print("Image Blob utilisée : $imageUrl");
+    } else {
+      print("Aucune image n'a été fournie.");
     }
+
+    // Créer l'objet SurveyModel avec les données saisies, y compris photoUrl
+    _tempSurvey = SurveyModel(
+      id: '',
+      numero: numeroController.text.isNotEmpty ? numeroController.text : 'N/A',
+      prenomEnqueteur:
+          prenomController.text.isNotEmpty ? prenomController.text : 'N/A',
+      nomEnqueteur: nomController.text.isNotEmpty ? nomController.text : 'N/A',
+      prenomEnfant: prenomenfantController.text.isNotEmpty
+          ? prenomenfantController.text
+          : 'N/A',
+      nomEnfant: nomenfantController.text.isNotEmpty
+          ? nomenfantController.text
+          : 'N/A',
+      sexeEnfant: selectedSexeType ?? 'Non spécifié',
+      contactEnfant: contactenfantController.text.isNotEmpty
+          ? contactenfantController.text
+          : 'N/A',
+      nomContactEnfant: nomcontactenfantController.text.isNotEmpty
+          ? nomcontactenfantController.text
+          : 'N/A',
+      ageEnfant:
+          ageenfantController.text.isNotEmpty ? ageenfantController.text : '0',
+      lieuEnquete: selectedlieuType ?? 'Non spécifié',
+      dateHeureDebut: selectedDateTime ?? DateTime.now(),
+      latitude: locationData?.latitude ?? 0.0,
+      longitude: locationData?.longitude ?? 0.0,
+      photoUrl: imageUrl ?? '',
+      avisEnqueteur: '', 
+    );
+
+    if (_tempSurvey?.photoUrl?.isEmpty ?? true) {
+      print("L'image est vide ou non fournie.");
+    } else {
+      print("L'image a été incluse : ${_tempSurvey?.photoUrl}");
+    }
+
+    
+    Navigator.pushNamed(context, '/survey', arguments: _tempSurvey);
   }
 
+ 
   Future<void> getEnqueteurs() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -205,14 +214,12 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
   @override
   void initState() {
     super.initState();
+    numeroController = TextEditingController(); 
     getEnqueteurs();
     nextNumberOrder = getnextNumberOrder();
-    numeroController = TextEditingController();
   }
 
-  // Stockage des images sur Web
 
-  /// Affiche un menu pour choisir entre "Prendre une photo" ou "Télécharger une image"
   void _pickOrCaptureImage(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -224,7 +231,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
               title: Text('Prendre une photo'),
               onTap: () {
                 Navigator.of(context).pop();
-                _takePhoto(); // Capture une photo avec la caméra
+                _takePhoto(); 
               },
             ),
             ListTile(
@@ -232,7 +239,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
               title: Text('Télécharger une image'),
               onTap: () {
                 Navigator.of(context).pop();
-                _pickImage(); // Télécharge une image depuis la galerie
+                _pickImage(); 
               },
             ),
           ],
@@ -241,7 +248,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     );
   }
 
-  /// Fonction pour prendre une photo avec la caméra (Mobile uniquement)
+  
   Future<void> _takePhoto() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
@@ -253,12 +260,12 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     }
   }
 
-  /// Fonction pour télécharger une image (Web et Mobile)
+
   Future<void> _pickImage() async {
     if (kIsWeb) {
-      // Web: Utiliser FileUploadInputElement
+      
       html.FileUploadInputElement uploadInput =
-          html.FileUploadInputElement(); // Utilisez le type correct ici
+          html.FileUploadInputElement(); 
       uploadInput.accept = 'image/*';
       uploadInput.click();
 
@@ -271,7 +278,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
         }
       });
     } else {
-      // Mobile: Utilise ImagePicker
+      
       final ImagePicker _picker = ImagePicker();
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -307,30 +314,24 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                   ),
                   SizedBox(height: 20),
                   FutureBuilder<String>(
-                    future: getnextNumberOrder(),
+                    future: nextNumberOrder,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Erreur: ${snapshot.error}');
-                      } else {
-                        String nextNumberOrderString = snapshot.data!;
-                        numeroController.text = nextNumberOrderString;
-                        return TextFormField(
-                          controller: numeroController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'Numéro de l enquête',
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Color.fromRGBO(246, 150, 14, 1.0),
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        );
                       }
+                      if (snapshot.hasError) {
+                        return Text('Erreur: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData) {
+                        return Text('Aucune donnée disponible');
+                      }
+
+                      numeroController.text = snapshot.data ?? 'N/A';
+                      return TextFormField(
+                        controller: numeroController,
+                        decoration:
+                            InputDecoration(labelText: 'Numéro de l\'enquête'),
+                      );
                     },
                   ),
                   SizedBox(height: 20),
@@ -418,10 +419,10 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9]')), // Permet uniquement les chiffres
+                          RegExp(r'[0-9]')), 
                       LengthLimitingTextInputFormatter(
-                          8), // Limite à 8 caractères
-                      _ContactFormatter(), // Formate le texte pour l'affichage (par exemple, ajoute des espaces)
+                          8), 
+                      _ContactFormatter(), 
                     ],
                     decoration: InputDecoration(
                       labelText: 'Contact de l\'enfant',
@@ -514,18 +515,18 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                           ? Image.file(_image!,
                               fit: BoxFit.cover) // Affichage pour mobile
                           : _imageFile != null
-                              ?Image.network(
-                  html.Url.createObjectUrl(_imageFile!),
-                  height: 150,
-                ) // Affichage pour Web avec URL Blob
-                : Center(child: Icon(Icons.camera_alt, size: 50)),
+                              ? Image.network(
+                                  html.Url.createObjectUrl(_imageFile!),
+                                  height: 150,
+                                ) // Affichage pour Web avec URL Blob
+                              : Center(child: Icon(Icons.camera_alt, size: 50)),
                     ),
                   ),
                   SizedBox(
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: _isButtonEnabled ? _saveSurvey : null,
+                    onPressed: _isButtonEnabled ? _savePartialSurvey : null,
                     child: _isLoading
                         ? CircularProgressIndicator()
                         : Text('Envoyer l\'enquête'),

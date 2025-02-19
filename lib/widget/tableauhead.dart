@@ -63,11 +63,7 @@ class Group228Widget extends StatelessWidget {
                   ),
                   child: Stack(
                     children: <Widget>[
-                      Positioned(
-                        top: 1.5,
-                        left: 4.5,
-                        child: Image.asset('assets/images/vector.svg'),
-                      ),
+                     
                     ],
                   ),
                 ),

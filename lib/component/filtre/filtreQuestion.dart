@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Filters extends StatelessWidget {
+class FiltersQuestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -10,7 +10,7 @@ class Filters extends StatelessWidget {
         children: [
           // Texte "86 utilisateurs"
           Text(
-            "86 utilisateurs",
+            "112 questions",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -21,11 +21,11 @@ class Filters extends StatelessWidget {
           // Boutons
           Row(
             children: [
-              _buildFilterButton(Icons.people_outline, "Par rôle"),
+              _buildFilterButton(Icons.mode_edit, "Modifier"),
               SizedBox(width: 8),
-              _buildFilterButton(Icons.location_on_outlined, "Localité"),
+              _buildFilterButton(Icons.print, "Imprimer"),
               SizedBox(width: 8),
-              _buildCreateButton(),
+              _buildCreateButton(context),
             ],
           ),
         ],
@@ -54,19 +54,21 @@ class Filters extends StatelessWidget {
   }
 
   // Bouton orange "Créer un utilisateur"
-  Widget _buildCreateButton() {
+  Widget _buildCreateButton(context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: Colors.orange,
       ),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.pushReplacementNamed(context, '/question/create');
+      },
       child: Row(
         children: [
           Icon(Icons.add, color: Colors.white, size: 18),
           SizedBox(width: 5),
-          Text("Créer un utilisateur", style: TextStyle(color: Colors.white)),
+          Text("Créer une question", style: TextStyle(color: Colors.white)),
         ],
       ),
     );

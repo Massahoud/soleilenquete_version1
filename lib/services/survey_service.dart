@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'dart:html' as html;
 
@@ -8,7 +10,7 @@ import 'package:http_parser/http_parser.dart';
 import '../models/survey_model.dart';
 
 class SurveyService {
-  final String baseUrl = "http://192.168.1.98:3000/api"; // Remplace par l'URL de ton API
+  final String baseUrl = "http://192.168.1.81:3000/api"; // Remplace par l'URL de ton API
 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -74,25 +76,80 @@ class SurveyService {
     }
   }
 
-Future<SurveyModel> createSurvey(SurveyModel survey, html.File? imageFile) async {
+ Future<void> sendResponses(String surveyId, List<Map<String, dynamic>> responses) async {
+  final url = Uri.parse('$baseUrl/surveys/Reponse');
+
+  final authToken = await getAuthToken();
+  final headers = {
+    'Content-Type': 'application/json',
+    if (authToken != null) 'Authorization': 'Bearer $authToken',
+  };
+
+
+  final responsesWithSurveyId = responses.map((response) {
+    return {
+      ...response,
+      'enquete_id': surveyId, 
+    };
+  }).toList();
+
+  try {
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode({'responses': responsesWithSurveyId}),
+    );
+
+    if (response.statusCode == 200) {
+      print("Réponses envoyées avec succès !");
+    } else {
+      print("Erreur lors de l'envoi des réponses: ${response.body}");
+    }
+  } catch (e) {
+    print("Erreur de connexion : $e");
+  }
+}
+
+
+
+
+Future<String?> createSurvey(SurveyModel survey, html.File? imageFile) async {
   final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/surveys'));
 
-  // Ajouter les champs textuels du survey
-  request.fields['numero'] = survey.numero;
-  request.fields['prenomEnqueteur'] = survey.prenomEnqueteur;
-  request.fields['nomEnqueteur'] = survey.nomEnqueteur;
-  request.fields['prenomEnfant'] = survey.prenomEnfant;
-  request.fields['nomEnfant'] = survey.nomEnfant;
-  request.fields['sexeEnfant'] = survey.sexeEnfant;
-  request.fields['contactEnfant'] = survey.contactEnfant;
-  request.fields['nomContactEnfant'] = survey.nomContactEnfant;
-  request.fields['ageEnfant'] = survey.ageEnfant;
-  request.fields['lieuEnquete'] = survey.lieuEnquete;
-  
-  request.fields['latitude'] = survey.latitude.toString();
-  request.fields['longitude'] = survey.longitude.toString();
+  final authToken = await getAuthToken();
+  if (authToken != null) {
+    request.headers['Authorization'] = 'Bearer $authToken';
+  } else {
+    print("Avertissement : Aucun token trouvé !");
+  }
 
-  // Ajouter l'image si elle existe
+  Map<String, dynamic> geolocalisation = {
+    'latitude': survey.latitude,
+    'longitude': survey.longitude,
+  };
+
+  if (geolocalisation['latitude'] is! double) {
+    geolocalisation['latitude'] = double.tryParse(survey.latitude.toString()) ?? 0.0;
+  }
+  if (geolocalisation['longitude'] is! double) {
+    geolocalisation['longitude'] = double.tryParse(survey.longitude.toString()) ?? 0.0;
+  }
+
+  request.fields['numero'] = survey.numero.toString();
+  request.fields['age_enfant'] = survey.ageEnfant.toString();
+  request.fields['latitude'] = geolocalisation['latitude'].toString();
+  request.fields['longitude'] = geolocalisation['longitude'].toString();
+  request.fields['prenom_enqueteur'] = survey.prenomEnqueteur;
+  request.fields['nom_enqueteur'] = survey.nomEnqueteur;
+  request.fields['prenom_enfant'] = survey.prenomEnfant;
+  request.fields['nom_enfant'] = survey.nomEnfant;
+  request.fields['sexe_enfant'] = survey.sexeEnfant;
+  request.fields['contact_enfant'] = survey.contactEnfant;
+  request.fields['nomcontact_enfant'] = survey.nomContactEnfant;
+  request.fields['lieuenquete'] = survey.lieuEnquete;
+request.fields['avis_enqueteur']= survey.avisEnqueteur;
+  request.fields['geolocalisation'] = jsonEncode(geolocalisation);
+
   if (imageFile != null) {
     final reader = html.FileReader();
     reader.readAsArrayBuffer(imageFile);
@@ -100,7 +157,7 @@ Future<SurveyModel> createSurvey(SurveyModel survey, html.File? imageFile) async
 
     final bytes = reader.result as List<int>;
     request.files.add(http.MultipartFile.fromBytes(
-      'photo_url', // Nom du champ pour le fichier côté backend
+      'photo_url',
       bytes,
       filename: imageFile.name,
       contentType: MediaType('image', 'jpeg'),
@@ -114,7 +171,10 @@ Future<SurveyModel> createSurvey(SurveyModel survey, html.File? imageFile) async
     if (response.statusCode == 201) {
       final jsonResponse = jsonDecode(responseBody);
       if (jsonResponse.containsKey('survey')) {
-        return SurveyModel.fromJson(jsonResponse['survey']);
+        final surveyId = jsonResponse['survey']['id'];
+        print("ID de l'enquête créée : $surveyId");
+
+        return surveyId;
       } else {
         throw Exception('Format de réponse invalide: $responseBody');
       }
@@ -123,7 +183,7 @@ Future<SurveyModel> createSurvey(SurveyModel survey, html.File? imageFile) async
     }
   } catch (e) {
     print('Erreur lors de la création du survey: $e');
-    rethrow;
+    return null;
   }
 }
 

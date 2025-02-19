@@ -24,7 +24,8 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
         double totale = item['total'].toDouble();
         String numero = item['numero'].toString(); // Le numéro associé au point
 
-        points.add(ScatterData(total, totale, numero)); // Ajouter le point au nuage
+        points.add(
+            ScatterData(total, totale, numero)); // Ajouter le point au nuage
       }
 
       setState(() {
@@ -50,54 +51,64 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Nuage de Points')),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // Afficher un indicateur de chargement
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Afficher un indicateur de chargement
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SfCartesianChart(
                 primaryXAxis: NumericAxis(
-                  title: AxisTitle(text: 'Alimentation/Pauvreté'), // Titre de l'axe X
+                  title: AxisTitle(
+                      text: 'Alimentation/Pauvreté'), // Titre de l'axe X
                   minimum: 0, // Valeur minimale sur l'axe X
                   maximum: 5, // Valeur maximale sur l'axe X
-                  interval: 1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
+                  interval:
+                      1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
                 ),
                 primaryYAxis: NumericAxis(
-                  title: AxisTitle(text: 'Violence/Pauvreté'), // Titre de l'axe Y
+                  title:
+                      AxisTitle(text: 'Violence/Pauvreté'), // Titre de l'axe Y
                   minimum: 0, // Valeur minimale sur l'axe Y
                   maximum: 5, // Valeur maximale sur l'axe Y
-                  interval: 1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
+                  interval:
+                      1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
                 ),
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
-                  format: 'Total: point.x\nTotale: point.y\nNuméro: point.extra', // Afficher les valeurs de x, y et numéro
-                  builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                  format:
+                      'Total: point.x\nTotale: point.y\nNuméro: point.extra', // Afficher les valeurs de x, y et numéro
+                  builder: (dynamic data, dynamic point, dynamic series,
+                      int pointIndex, int seriesIndex) {
                     final ScatterData scatterData = data;
                     return Container(
-  padding: EdgeInsets.all(8),
-  color: Colors.white,
-  constraints: BoxConstraints(
-    maxWidth: 200, // Largeur maximale
-    maxHeight: 120, // Hauteur maximale
-  ),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Total: ${scatterData.total}'),
-      Text('Totale: ${scatterData.totale}'),
-      Text('Numéro: ${scatterData.numero}'),
-    ],
-  ),
-);
-
+                      padding: EdgeInsets.all(8),
+                      color: Colors.white,
+                      constraints: BoxConstraints(
+                        maxWidth: 200, // Largeur maximale
+                        maxHeight: 120, // Hauteur maximale
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Total: ${scatterData.total}'),
+                          Text('Totale: ${scatterData.totale}'),
+                          Text('Numéro: ${scatterData.numero}'),
+                        ],
+                      ),
+                    );
                   },
                 ),
-                series: <ScatterSeries<ScatterData, double>>[ // Changer de String à double
+                series: <ScatterSeries<ScatterData, double>>[
+                  // Changer de String à double
                   ScatterSeries<ScatterData, double>(
                     dataSource: scatterData,
                     xValueMapper: (ScatterData data, _) => data.total,
                     yValueMapper: (ScatterData data, _) => data.totale,
-                    pointColorMapper: (ScatterData data, _) => Colors.blue, // Couleur des points
+                    pointColorMapper: (ScatterData data, _) =>
+                        Colors.blue, // Couleur des points
                     dataLabelSettings: DataLabelSettings(
-                      isVisible: false, // Désactiver l'affichage des étiquettes des points
+                      isVisible:
+                          false, // Désactiver l'affichage des étiquettes des points
                     ),
                   ),
                 ],

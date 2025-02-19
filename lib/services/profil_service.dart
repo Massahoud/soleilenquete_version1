@@ -6,7 +6,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter/material.dart'; // Pour utiliser Navigator
 
 class ProfilService {
-  final String baseUrl = "http://192.168.1.98:3000/api"; // Remplace par ton URL API
+  final String baseUrl = "http://192.168.1.81:3000/api"; // Remplace par ton URL API
   final BuildContext context;
 
   ProfilService(this.context); // Ajoute le BuildContext pour la navigation

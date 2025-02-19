@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/group_model.dart';
 
 class GroupService {
-  final String baseUrl = "http://192.168.1.98:3000/api"; // Remplacez par l'URL de votre API
+  final String baseUrl = "http://192.168.1.81:3000/api"; // Remplacez par l'URL de votre API
 
   // Récupérer le token d'authentification
   Future<String?> getAuthToken() async {

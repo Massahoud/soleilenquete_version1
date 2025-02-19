@@ -6,7 +6,6 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          // Barre de navigation latérale
           Container(
             width: MediaQuery.of(context).size.width * 0.2,
             color: Colors.white,
@@ -15,32 +14,36 @@ class HomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                 Container(
-  width: 120, // Largeur personnalisable
-  height: 110, // Hauteur personnalisable
-  decoration: BoxDecoration(
-    image: DecorationImage(
-      image: AssetImage('assets/images/téléchargement.jpeg'),
-      fit: BoxFit.cover, // Ajuste l'image
-    ),
-  ),
-),
-
+                  Container(
+                    width: 120,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/téléchargement.jpeg'),
+                        fit: BoxFit.cover, // Ajuste l'image
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  _buildNavItem(context, 'View Users', '/users', Icons.people),
-                  _buildNavItem(context, 'View Groups', '/groups', Icons.group),
-                  _buildNavItem(context, 'Create Group', '/groups/create', Icons.group_add),
-                  _buildNavItem(context, 'Voir', '/voir', Icons.visibility),
-                  _buildNavItem(context, 'Create Question', '/question/create', Icons.add_circle),
-                  _buildNavItem(context, 'Question', '/question', Icons.help_outline),
+                  _buildNavItem(context, 'Utilisateurs', '/users', Icons.people),
+                   const SizedBox(height: 20),
+                  _buildNavItem(context, 'Groupes d\'utilisateurs ', '/groups', Icons.group),
+                   const SizedBox(height: 20),
+                  _buildNavItem(context, 'Create Group', '/groups/create',
+                      Icons.group_add),
+                       const SizedBox(height: 20),
+                  _buildNavItem(
+                      context, 'Formulaire', '/question',Icons.app_registration),
+                       const SizedBox(height: 20),
                   _buildNavItem(context, 'Enquête', '/enquete', Icons.poll),
-                  _buildNavItem(context, 'Create User', '/createSurvey', Icons.person_add),
-                  _buildNavItem(context, 'Mise', '/update', Icons.update),
-                  _buildNavItem(context, 'Signup', '/signup', Icons.app_registration),
-                  _buildNavItem(context, 'Nuage de point', '/nuageDePoint', Icons.scatter_plot),
-                  _buildNavItem(context, 'Survey', '/survey', Icons.assignment),
-                  _buildNavItem(context, 'Card', '/card', Icons.credit_card),
-                  _buildNavItem(context, 'Logout', '/login', Icons.logout, isLogout: true),
+                   const SizedBox(height: 20),
+                  _buildNavItem(
+                      context, 'Signup', '/signup', Icons.app_registration),
+                       const SizedBox(height: 20),
+                  _buildNavItem(context, 'Nuage de point', '/nuageDePoint',
+                      Icons.scatter_plot),
+                      _buildNavItem(context, 'Faire une enquete', '/createSurvey',
+                      Icons.scatter_plot),
                 ],
               ),
             ),
@@ -50,17 +53,18 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // Fonction pour créer un bouton de navigation avec une icône
-  Widget _buildNavItem(BuildContext context, String title, String route, IconData icon, {bool isLogout = false}) {
+  Widget _buildNavItem(
+      BuildContext context, String title, String route, IconData icon,
+      {bool isLogout = false}) {
     return ListTile(
       leading: Icon(
         icon,
-        color: isLogout ? Colors.red : Colors.blueGrey, // Couleur plus visible
+        color: isLogout ? Colors.red : Colors.blueGrey,
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: isLogout ? Colors.red : Colors.black, // Couleur du texte améliorée
+          color: isLogout ? Colors.red : Colors.black,
           fontWeight: FontWeight.bold,
         ),
       ),

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://192.168.1.98:3000/api/sendInvite/invite';
+  static const String apiUrl = 'http://192.168.1.81:3000/api/sendInvite/invite';
 
   // Méthode pour envoyer l'email d'invitation
   Future<void> sendInvite(String email, String role) async {

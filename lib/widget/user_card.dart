@@ -110,7 +110,7 @@ void _showUpdateUserDialog(BuildContext context, UserModel user) {
           ),
           // Boîte de dialogue positionnée à gauche avec une taille définie
           Positioned(
-            right: 1, // Position à gauche avec un écart de 20 pixels
+            right: 0, // Position à gauche avec un écart de 20 pixels
             top: 0, // Un peu de marge du haut
             child: Container(
               width: MediaQuery.of(context).size.width * 0.4, // 30% de la largeur de l'écran

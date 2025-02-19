@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:soleilenquete/component/question_card.dart';
+import 'package:soleilenquete/views/question/question_liste.dart';
 
 import 'package:soleilenquete/views/auth/login_screen.dart';
 
@@ -8,6 +8,7 @@ import 'package:soleilenquete/views/HomePage.dart';
 
 import 'package:soleilenquete/views/auth/SignUpPage.dart';
 import 'package:soleilenquete/views/enquete/startSurveyPage.dart';
+
 
 import 'package:soleilenquete/views/users/UserUpdatePage.dart';
 
@@ -24,7 +25,7 @@ import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/views/enquete/SurveyPage.dart';
 
-import 'package:soleilenquete/widget/miseajour.dart';
+import 'package:soleilenquete/widget/tableauhead.dart';
 
 // Importez votre configuration Firebase
 import 'firebase_options.dart';
@@ -59,11 +60,12 @@ class MyApp extends StatelessWidget {
         '/users': (context) => UserListPage(),
        '/groups/create': (context) => CreateGroupPage(),
        '/groups': (context) => GroupsListPage(),
-        '/question': (context) => QuestionListPage(),
+        '/question': (context) => QuestionsPage(),
         '/enquete': (context) => EnqueteListePage(),
         '/nuageDePoint': (context) => ScatterPlotPage(),
+       
          '/survey': (context) => SurveyPage(),
-         '/card': (context) => QuestionsPage(),
+         
       '/question/create': (context) => CreateQuestionPage(),
       },
      onGenerateRoute: (settings) {

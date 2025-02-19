@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/component/customTextField.dart';
 import 'package:soleilenquete/models/reponse_model.dart';
+import 'package:soleilenquete/services/survey_service.dart';
 import '../../models/question_model.dart';
 import '../../services/question_service.dart';
 import '../../services/response_service.dart';
 import '../../widget/Single_question.dart';
 import '../../widget/Multiple_question.dart';
+import 'package:soleilenquete/models/survey_model.dart';
+import 'dart:html' as html;
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 
 class SurveyPage extends StatefulWidget {
   @override
@@ -14,18 +19,78 @@ class SurveyPage extends StatefulWidget {
 
 class _SurveyPageState extends State<SurveyPage> {
   List<Map<String, dynamic>> questionsWithResponses = [];
-  Map<String, dynamic> answers = {};
 
+  final SurveyService surveyService = SurveyService();
   String errorMessage = '';
   double progress = 0.0;
   final ScrollController _scrollController = ScrollController();
   final Map<String, TextEditingController> textControllers = {};
-
+  SurveyModel? _tempSurvey;
+  html.File? _imageFile;
+  final Map<String, Map<String, String>> answers = {};
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(Duration.zero, () {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is SurveyModel) {
+        setState(() {
+          _tempSurvey = args;
+        });
+
+        print("Données récupérées : ${_tempSurvey.toString()}");
+      }
+    });
+
     _loadQuestions();
     _scrollController.addListener(_updateProgress);
+  }
+
+  Future<String?> sendSurveyData(SurveyModel newSurvey) async {
+    try {
+      if (newSurvey.photoUrl != null &&
+          newSurvey.photoUrl!.startsWith("blob:")) {
+        _imageFile =
+            await convertBlobUrlToFile(newSurvey.photoUrl!, "survey_image.png");
+      }
+
+      final String? surveyId =
+          await surveyService.createSurvey(newSurvey, _imageFile);
+
+      if (surveyId != null) {
+        print('Survey envoyé avec succès : $surveyId');
+      } else {
+        print("Erreur : l'ID de l'enquête est null.");
+      }
+
+      return surveyId;
+    } catch (e) {
+      print("Erreur lors de l'envoi du survey : $e");
+      return null;
+    }
+  }
+
+  Future<html.File?> convertBlobUrlToFile(
+      String blobUrl, String fileName) async {
+    try {
+      final response = await http.get(Uri.parse(blobUrl));
+
+      if (response.statusCode == 200) {
+        Uint8List uint8List = response.bodyBytes;
+
+        final blob = html.Blob([uint8List]);
+        final file = html.File([blob], fileName, {'type': 'image/png'});
+
+        return file;
+      } else {
+        print("Erreur lors du téléchargement du blob: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Erreur: $e");
+      return null;
+    }
   }
 
   void _updateProgress() {
@@ -54,7 +119,6 @@ class _SurveyPageState extends State<SurveyPage> {
     setState(() {
       questionsWithResponses.add({
         'question': question,
-        
         'responses': null,
       });
     });
@@ -71,27 +135,210 @@ class _SurveyPageState extends State<SurveyPage> {
       });
     } catch (e) {
       print("Erreur lors du chargement des réponses: $e");
+
+      if (e.toString().contains('Unauthorized') ||
+          e.toString().contains('403')) {
+        _showTokenErrorDialog();
+      }
     }
   }
 
+  void _showTokenErrorDialog() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Session Expirée"),
+          content: Text("Votre session a expiré. Veuillez vous reconnecter."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // Méthode pour gérer les réponses
   void _handleAnswer({
     required String questionId,
     required String questionText,
     required String questionNumber,
-    List<Map<String, String>>? responses, // Liste pour les réponses multiples
-    String? responseId, // Pour les réponses uniques
-    String? responseText, // Pour les réponses saisies
+    String? responseId,
+    String? responseText,
   }) {
     setState(() {
-      answers[questionId] = {
+      String uniqueKey = "$questionId-$responseId";
+      answers[uniqueKey] = {
         'question_id': questionId,
         'question_text': questionText,
-        'question_number': questionNumber,
-        'responses': responses ?? [], // Liste pour les choix multiples
-        'response_id': responseId ?? '', // ID pour un seul choix
-        'response_text': responseText ?? '', // Texte d'un seul choix ou saisie
+        'numero': questionNumber,
+        'reponse': responseId ?? '',
+        'reponse_text': responseText ?? '',
       };
     });
+  }
+
+  Future<void> _sendAnswersToApi(String surveyId) async {
+    if (answers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Aucune réponse à envoyer.'),
+      ));
+      return;
+    }
+
+    List<Map<String, dynamic>> responses = answers.values.toList();
+
+    try {
+      await surveyService.sendResponses(surveyId, responses);
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Toutes les réponses ont été envoyées avec succès !'),
+      ));
+
+      setState(() {
+        answers.clear();
+      });
+    } catch (e) {
+      print('Erreur lors de l\'envoi des réponses : $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur lors de l\'envoi des réponses.'),
+      ));
+    }
+  }
+
+  Future<void> _sendSurveyAndAnswers(String avis) async {
+    if (_tempSurvey == null) {
+      print("Aucune enquête disponible à envoyer.");
+      return;
+    }
+
+    SurveyModel newSurvey = SurveyModel(
+      id: _tempSurvey!.id,
+      numero: _tempSurvey!.numero,
+      prenomEnqueteur: _tempSurvey!.prenomEnqueteur,
+      nomEnqueteur: _tempSurvey!.nomEnqueteur,
+      prenomEnfant: _tempSurvey!.prenomEnfant,
+      nomEnfant: _tempSurvey!.nomEnfant,
+      sexeEnfant: _tempSurvey!.sexeEnfant,
+      contactEnfant: _tempSurvey!.contactEnfant,
+      nomContactEnfant: _tempSurvey!.nomContactEnfant,
+      ageEnfant: _tempSurvey!.ageEnfant,
+      lieuEnquete: _tempSurvey!.lieuEnquete,
+      dateHeureDebut: _tempSurvey!.dateHeureDebut,
+      latitude: _tempSurvey!.latitude,
+      longitude: _tempSurvey!.longitude,
+      photoUrl: _tempSurvey!.photoUrl,
+      avisEnqueteur: avis,
+    );
+
+    try {
+      String? surveyId = await sendSurveyData(newSurvey);
+      if (surveyId == null) throw Exception("L'ID de l'enquête est null.");
+      print("Données de l'enquête envoyées avec succès. ID: $surveyId");
+
+      await _sendAnswersToApi(surveyId);
+      print("Réponses envoyées avec succès.");
+    } catch (e) {
+      print("Erreur lors de l'envoi des données : $e");
+    }
+  }
+
+  Future<void> _afficherBoiteDialogueAvis() async {
+    TextEditingController avisController = TextEditingController();
+    bool isLoading = false;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Avis de l\'enquêteur'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('Veuillez entrer votre avis:'),
+                    TextField(
+                      controller: avisController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Écrire ici',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Annuler'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: isLoading
+                      ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text('Enregistrer'),
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            isLoading = true;
+                          });
+
+                          await _sendSurveyAndAnswers(avisController.text);
+
+                          setState(() {
+                            isLoading = false;
+                          });
+
+                          Navigator.of(context).pop();
+
+                          _afficherBoiteSucces();
+                        },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _afficherBoiteSucces() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Succès'),
+          content: Text('Votre avis a été enregistré avec succès !'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/dashboard');
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -168,19 +415,19 @@ class _SurveyPageState extends State<SurveyPage> {
                               final selectedResponses = responses
                                   ?.where((r) =>
                                       selectedTexts.contains(r.reponse_text))
-                                  .map((r) => {
-                                        'response_id': r.id!,
-                                        'response_text': r.reponse_text,
-                                      })
                                   .toList();
 
-                              _handleAnswer(
-                                questionId: question.id!,
-                                questionText: question.question_text,
-                                questionNumber: question.numero,
-                                responses:
-                                    selectedResponses, // Utilisation de la liste
-                              );
+                              if (selectedResponses != null) {
+                                for (var response in selectedResponses) {
+                                  _handleAnswer(
+                                    questionId: question.id!,
+                                    questionText: question.question_text,
+                                    questionNumber: question.numero,
+                                    responseId: response.id!,
+                                    responseText: response.reponse_text,
+                                  );
+                                }
+                              }
                             },
                           );
                         } else {
@@ -188,9 +435,7 @@ class _SurveyPageState extends State<SurveyPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: CustomTextField(
                               controller: textControllers.putIfAbsent(
-                                  question.id!,
-                                  () =>
-                                      TextEditingController()), // Un contrôleur par question
+                                  question.id!, () => TextEditingController()),
                               labelText:
                                   "${question.numero}. ${question.question_text}",
                               hintText: 'Entrez le texte',
@@ -219,9 +464,7 @@ class _SurveyPageState extends State<SurveyPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print("Réponses: $answers");
-        },
+        onPressed: _afficherBoiteDialogueAvis,
         child: Icon(Icons.save),
       ),
     );

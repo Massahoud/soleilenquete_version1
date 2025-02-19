@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:soleilenquete/component/main_layout.dart';
+
 import 'package:soleilenquete/component/resetPassword.dart';
 
 import 'package:soleilenquete/views/auth/login_screen.dart';
