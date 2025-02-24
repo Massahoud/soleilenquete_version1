@@ -9,24 +9,24 @@ class ResetPasswordPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Fond flou (simulé par une image de fond avec un overlay semi-transparent)
+    
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/Noomdo2.jpg'), // Remplace avec ton image
+                image: AssetImage('assets/images/Noomdo2.jpg'), 
                 fit: BoxFit.cover,
               ),
             ),
             child: Container(
-              color: Colors.black.withOpacity(0.4), // Effet de flou simulé
+              color: Colors.black.withOpacity(0.4), 
             ),
           ),
           Center(
             child: Container(
-              width: 450, // Largeur de la Card
-              height: 310, // Hauteur de la Card
+              width: 450, 
+              height: 310, 
               child: Card(
-                color: Colors.white, // Couleur blanche pour la Card
+                color: Colors.white, 
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -51,7 +51,7 @@ class ResetPasswordPage extends StatelessWidget {
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey[300], // Fond gris clair autour de l'icône
+                              color: Colors.grey[300], 
                             ),
                             child: IconButton(
                               icon: Icon(Icons.close, color: Colors.black87),
@@ -78,7 +78,7 @@ class ResetPasswordPage extends StatelessWidget {
                             padding: EdgeInsets.symmetric(vertical: 14),
                           ),
                           onPressed: () {
-                            // Logique pour réinitialiser le mot de passe
+                            
                           },
                           child: Text(
                             "Réinitialiser",

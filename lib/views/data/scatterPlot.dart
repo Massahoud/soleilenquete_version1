@@ -8,29 +8,29 @@ class ScatterPlotPage extends StatefulWidget {
 }
 
 class _ScatterPlotPageState extends State<ScatterPlotPage> {
-  List<ScatterData> scatterData = []; // Liste des points à afficher
+  List<ScatterData> scatterData = []; 
   bool isLoading = true;
 
-  // Fonction pour récupérer les données et les formater
+  
   void fetchData() async {
     try {
-      // Récupérer les données de l'API
+     
       var data = await DataService().fetchAllData(context);
 
-      // Extraire les champs nécessaires (total, totale, numero)
+      
       List<ScatterData> points = [];
       for (var item in data) {
         double total = item['totale'].toDouble();
         double totale = item['total'].toDouble();
-        String numero = item['numero'].toString(); // Le numéro associé au point
+        String numero = item['numero'].toString();
 
         points.add(
-            ScatterData(total, totale, numero)); // Ajouter le point au nuage
+            ScatterData(total, totale, numero)); 
       }
 
       setState(() {
-        scatterData = points; // Mettre à jour les points à afficher
-        isLoading = false; // Changer l'état de chargement
+        scatterData = points; 
+        isLoading = false; 
       });
     } catch (e) {
       setState(() {
@@ -43,7 +43,7 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
   @override
   void initState() {
     super.initState();
-    fetchData(); // Appeler la fonction pour récupérer les données lors du lancement
+    fetchData(); 
   }
 
   @override
@@ -53,30 +53,30 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
       body: isLoading
           ? Center(
               child:
-                  CircularProgressIndicator()) // Afficher un indicateur de chargement
+                  CircularProgressIndicator()) 
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SfCartesianChart(
                 primaryXAxis: NumericAxis(
                   title: AxisTitle(
-                      text: 'Alimentation/Pauvreté'), // Titre de l'axe X
-                  minimum: 0, // Valeur minimale sur l'axe X
-                  maximum: 5, // Valeur maximale sur l'axe X
+                      text: 'Alimentation/Pauvreté'),
+                  minimum: 0,
+                  maximum: 5, 
                   interval:
-                      1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
+                      1, 
                 ),
                 primaryYAxis: NumericAxis(
                   title:
-                      AxisTitle(text: 'Violence/Pauvreté'), // Titre de l'axe Y
-                  minimum: 0, // Valeur minimale sur l'axe Y
-                  maximum: 5, // Valeur maximale sur l'axe Y
+                      AxisTitle(text: 'Violence/Pauvreté'), 
+                  minimum: 0, 
+                  maximum: 5, 
                   interval:
-                      1, // Intervalle entre les graduations (0, 1, 2, 3, 4, 5)
+                      1, 
                 ),
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                   format:
-                      'Total: point.x\nTotale: point.y\nNuméro: point.extra', // Afficher les valeurs de x, y et numéro
+                      'Total: point.x\nTotale: point.y\nNuméro: point.extra', 
                   builder: (dynamic data, dynamic point, dynamic series,
                       int pointIndex, int seriesIndex) {
                     final ScatterData scatterData = data;
@@ -99,16 +99,16 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
                   },
                 ),
                 series: <ScatterSeries<ScatterData, double>>[
-                  // Changer de String à double
+                 
                   ScatterSeries<ScatterData, double>(
                     dataSource: scatterData,
                     xValueMapper: (ScatterData data, _) => data.total,
                     yValueMapper: (ScatterData data, _) => data.totale,
                     pointColorMapper: (ScatterData data, _) =>
-                        Colors.blue, // Couleur des points
+                        Colors.blue,
                     dataLabelSettings: DataLabelSettings(
                       isVisible:
-                          false, // Désactiver l'affichage des étiquettes des points
+                          false, 
                     ),
                   ),
                 ],
@@ -118,7 +118,7 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
   }
 }
 
-// Modèle pour les points du nuage de points
+
 class ScatterData {
   final double total;
   final double totale;

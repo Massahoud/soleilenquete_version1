@@ -10,7 +10,7 @@ class FiltersEnquete extends StatelessWidget {
         children: [
           // Texte "86 utilisateurs"
           Text(
-            "86 enquetes",
+            "660 enquetes",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

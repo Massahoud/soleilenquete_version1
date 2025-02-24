@@ -8,7 +8,7 @@ class SignUpPages extends StatelessWidget {
       body: Row(
         children: [
           Expanded(
-            flex: 7,
+            flex: 6,
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -19,10 +19,11 @@ class SignUpPages extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Container(
               color: Colors.white,
-            child: Padding(
+            child:SingleChildScrollView(child:
+             Padding(
 
               
               padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
@@ -46,7 +47,7 @@ class SignUpPages extends StatelessWidget {
               ),
             ),
             ),
-          ),
+          )),
         ],
       ),
       

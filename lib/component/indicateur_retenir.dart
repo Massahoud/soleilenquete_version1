@@ -233,7 +233,7 @@ Container(
         color: Color.fromRGBO(103, 97, 98, 1),
         fontFamily: 'Inter',
         fontSize: 10,
-        letterSpacing: 0 /*percentages not used in flutter. defaulting to zero*/,
+        letterSpacing: 0 ,
         fontWeight: FontWeight.normal,
         height: 1.6
       ),),

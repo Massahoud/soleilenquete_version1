@@ -4,21 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/chat_model.dart';
 
 class ChatService {
-  final String baseUrl = 'http://192.168.1.81:3000/api/chat'; // Replace with your API base URL
+  final String baseUrl = 'https://soleilmainapi.vercel.app/api/chat'; 
 
-  // Retrieve the stored authentication token
+
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
   }
 
-  // Save the authentication token
+ 
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
-  // Create a new chat message
+
   Future<ChatMessage> createMessage({
     required String enqueteId,
     required String userId,
@@ -60,7 +60,7 @@ class ChatService {
   }
 
   final response = await http.get(
-    Uri.parse('$baseUrl/$enqueteId'), // Utilisation de l'URL avec le paramètre
+    Uri.parse('$baseUrl/$enqueteId'),
     headers: {
       'Authorization': 'Bearer $token',
     },
@@ -74,7 +74,7 @@ class ChatService {
   }
 }
 
-  // Delete a chat message by its ID
+ 
   Future<void> deleteMessage(String messageId) async {
     final token = await getAuthToken();
     if (token == null) {

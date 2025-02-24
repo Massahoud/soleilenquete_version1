@@ -5,12 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/user_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';  // Importez Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';  
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 class UserService {
-  final String baseUrl = "http://192.168.1.81:3000/api"; // Replace with your API URL
+  final String baseUrl = "https://soleilmainapi.vercel.app/api";
 
 
 Future<String?> getUserRole() async {
@@ -21,7 +21,7 @@ Future<String?> getUserRole() async {
   
   try {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(authToken);
-    return decodedToken['role']; // Assurez-vous que le backend inclut 'role' dans le token
+    return decodedToken['role']; 
   } catch (e) {
     print('Error decoding token: $e');
     return null;
@@ -113,7 +113,7 @@ Future<String?> getUserRole() async {
 
     final bytes = reader.result as List<int>;
     request.files.add(http.MultipartFile.fromBytes(
-      'photo', // Nom du champ pour le fichier côté backend
+      'photo', 
       bytes,
       filename: imageFile.name,
       contentType: MediaType('image', 'jpeg'),
@@ -142,25 +142,25 @@ Future<String?> getUserRole() async {
 
 Future<void> updateUserGroup(String userId, String groupName) async {
   try {
-    // Référence au document utilisateur dans Firestore
+   
     var userRef = FirebaseFirestore.instance.collection('users').doc(userId);
 
-    // Récupération du document utilisateur
+  
     var userDoc = await userRef.get();
 
     if (userDoc.exists) {
-      // Vérifier si l'utilisateur a déjà un groupe
+      
       var userData = userDoc.data();
-      var currentGroups = userData?['groupe'] ?? '';  // Si pas de groupe, initialise comme chaîne vide
+      var currentGroups = userData?['groupe'] ?? '';  
 
-      // Vérifier si le groupe existe déjà dans la chaîne
+      
       if (currentGroups.contains(groupName)) {
         print("L'utilisateur $userId est déjà membre du groupe $groupName");
       } else {
-        // Ajouter le groupe à la chaîne en séparant par une virgule
+       
         String updatedGroups = currentGroups.isEmpty ? groupName : '$currentGroups,$groupName';
         
-        // Mettre à jour l'utilisateur avec le nouveau groupe
+
         await userRef.update({
           'groupe': updatedGroups,
         });
@@ -196,7 +196,7 @@ Future<UserModel> updateUser(String id, UserModel user, html.File? imageFile) as
 
     final bytes = reader.result as List<int>;
     request.files.add(http.MultipartFile.fromBytes(
-      'photo', // Nom du champ pour le fichier côté backend
+      'photo', 
       bytes,
       filename: imageFile.name,
       contentType: MediaType('image', 'jpeg'),

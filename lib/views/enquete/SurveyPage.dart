@@ -163,7 +163,7 @@ class _SurveyPageState extends State<SurveyPage> {
     });
   }
 
-  // Méthode pour gérer les réponses
+
   void _handleAnswer({
     required String questionId,
     required String questionText,

@@ -30,7 +30,7 @@ class _LoginFormState extends State<LoginForm> {
 
     try {
       await _authService.login(_email, _motDePasse);
-      Navigator.pushReplacementNamed(context, '/users');
+      Navigator.pushReplacementNamed(context, '/dashboard');
     } catch (e) {
       setState(() {
         _hasError = true;
@@ -94,7 +94,7 @@ class _LoginFormState extends State<LoginForm> {
               _motDePasse = value!;
             },
           ),
-          if (_hasError) // Affichage du message d'erreur si l'authentification échoue
+          if (_hasError) 
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(

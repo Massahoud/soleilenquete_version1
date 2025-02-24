@@ -34,7 +34,7 @@ String  avisEnqueteur;
     required this.avisEnqueteur,
   });
 
-  // Convertir en JSON pour Firestore ou API
+ 
   Map<String, dynamic> toJson() {
     return {
       'numero': numero,
@@ -47,10 +47,10 @@ String  avisEnqueteur;
       'contact_enfant': contactEnfant,
       'nomcontact_enfant': nomContactEnfant,
       'lieuenquete': lieuEnquete,
-      'date_heure_debut': dateHeureDebut?.millisecondsSinceEpoch, // Converti en timestamp (millisecondes)
+      'date_heure_debut': dateHeureDebut?.millisecondsSinceEpoch, 
       'photo_url': photoUrl,
       'geolocalisation': {
-        'latitude': latitude,  // Utilisation directe de Map
+        'latitude': latitude,
         'longitude': longitude,
         
       },
@@ -58,7 +58,7 @@ String  avisEnqueteur;
     };
   }
 
-  // Convertir de JSON en objet SurveyModel
+  
   factory SurveyModel.fromJson(Map<String, dynamic> json) {
     return SurveyModel(
       id: json['id'] ?? json['_id'], 
@@ -82,7 +82,7 @@ String  avisEnqueteur;
     );
   }
 
-  // Redéfinir la méthode toString pour un affichage lisible
+  
   @override
   String toString() {
     return 'SurveyModel(id: $id, numero: $numero, nomEnqueteur: $nomEnqueteur, prenomEnqueteur: $prenomEnqueteur, '

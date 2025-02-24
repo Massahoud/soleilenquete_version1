@@ -4,21 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/group_model.dart';
 
 class GroupService {
-  final String baseUrl = "http://192.168.1.81:3000/api"; // Remplacez par l'URL de votre API
+  final String baseUrl = "https://soleilmainapi.vercel.app/api"; 
 
-  // Récupérer le token d'authentification
+ 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
   }
 
-  // Enregistrer un nouveau token
+
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
-  // Récupérer tous les groupes
+ 
   Future<List<GroupModel>> getAllGroups() async {
     final authToken = await getAuthToken();
     if (authToken == null) {
@@ -45,7 +45,7 @@ class GroupService {
     }
   }
 
-  // Récupérer un groupe par ID
+ 
   Future<GroupModel> getGroupById(String id) async {
     final authToken = await getAuthToken();
     if (authToken == null) {
@@ -77,7 +77,7 @@ class GroupService {
     throw Exception('No auth token found');
   }
 
-  // Vérification des membres et de la validité des champs
+  
   if (nom == null || description == null || date_creation == null || memberIds == null || memberIds.isEmpty) {
     throw Exception('Invalid input: one or more fields are null or empty');
   }
@@ -103,15 +103,15 @@ print('Response body: ${response.body}');
 if (response.statusCode == 201) {
   final responseBody = jsonDecode(response.body);
 
-  // Vérifiez si le champ "group" existe dans la réponse
+
   if (responseBody.containsKey('group') && responseBody['group'] != null) {
     final groupData = responseBody['group'];
 
-    // Vérifiez si 'membres' existe et n'est pas null
+   
     if (groupData['membres'] != null) {
-      // Assurez-vous que 'membres' est bien une liste
+     
       final List<String> members = List<String>.from(groupData['membres'] ?? []);
-      // Créez un objet GroupModel à partir de la réponse
+     
       return GroupModel.fromJson(groupData);
     } else {
       throw Exception('Group does not have members.');
@@ -139,19 +139,19 @@ Future<GroupModel> updateGroup(
   String date_creation,
   List<String> memberIds,
 ) async {
-  // Récupérer le token d'authentification
+
   final authToken = await getAuthToken();
   if (authToken == null) {
     throw Exception('No auth token found');
   }
 
-  // Vérification des membres et de la validité des champs
+  
   if (nom.isEmpty || description.isEmpty || date_creation.isEmpty || memberIds.isEmpty) {
     throw Exception('Invalid input: one or more fields are null or empty');
   }
 
   try {
-    // Obtenir les membres actuels
+   
     final groupResponse = await http.get(
       Uri.parse('$baseUrl/groups/$id'),
       headers: {
@@ -167,18 +167,18 @@ Future<GroupModel> updateGroup(
 
     final groupData = jsonDecode(groupResponse.body);
 
-    // Vérification que les membres sont bien une liste
+    
     final List<String> currentMembers = List<String>.from(groupData['membres'] ?? []);
 
-    // Éviter les doublons
+   
     final updatedMembers = {...currentMembers, ...memberIds}.toList();
 
-    // Validation des types des membres
+    
     if (!updatedMembers.every((member) => member is String)) {
       throw Exception('All member IDs must be strings.');
     }
 
-    // Mise à jour via requête HTTP PUT
+ 
     final response = await http.put(
       Uri.parse('$baseUrl/groups/$id'),
       headers: {
@@ -197,7 +197,7 @@ Future<GroupModel> updateGroup(
       throw Exception('Failed to update group: ${response.statusCode} ${response.body}');
     }
 
-    // Vérifiez si la réponse contient les données du groupe mises à jour
+    
     final responseBody = jsonDecode(response.body);
     if (responseBody.containsKey('group') && responseBody['group'] != null) {
       return GroupModel.fromJson(responseBody['group']);
@@ -211,7 +211,7 @@ Future<GroupModel> updateGroup(
 }
 
 
-  // Supprimer un groupe
+ 
   Future<void> deleteGroup(String id) async {
     final authToken = await getAuthToken();
     if (authToken == null) {

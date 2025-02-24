@@ -1,24 +1,24 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';  // Nécessaire pour le BuildContext et showDialog
+import 'package:flutter/material.dart';  
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DataService {
-  final String baseUrl = "http://192.168.1.81:3000"; // Remplacez par l'URL publique si nécessaire.
+  final String baseUrl = "https://soleilmainapi.vercel.app"; 
 
-  // Enregistrer le token dans SharedPreferences
+ 
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
-  // Récupérer le token depuis SharedPreferences
+ 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
   }
 
-  // Récupérer toutes les données
+
   Future<List<dynamic>> fetchAllData(BuildContext context) async {
     final token = await getAuthToken();
     if (token == null) {
@@ -34,13 +34,13 @@ class DataService {
     );
 
     if (response.statusCode == 401) {
-      _showTokenExpiredDialog(context);  // Affichage du dialog en cas de token expiré
-      return []; // Retourne une liste vide ou tu peux retourner une autre valeur par défaut
+      _showTokenExpiredDialog(context);  
+      return []; 
     }
 
     if (response.statusCode == 200) {
       try {
-        return json.decode(response.body);  // Décodage du JSON
+        return json.decode(response.body);  
       } catch (e) {
         throw Exception("Erreur de décodage de la réponse JSON");
       }
@@ -49,7 +49,7 @@ class DataService {
     }
   }
 
-  // Afficher la boîte de dialogue pour token expiré et rediriger vers le login
+
   void _showTokenExpiredDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -60,8 +60,8 @@ class DataService {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();  // Fermer la boîte de dialogue
-                Navigator.pushReplacementNamed(context, '/login');  // Rediriger vers la page de login
+                Navigator.of(context).pop();  
+                Navigator.pushReplacementNamed(context, '/login');  
               },
               child: Text("Se reconnecter"),
             ),
@@ -71,7 +71,7 @@ class DataService {
     );
   }
 
-  // Récupérer une donnée par ID
+
   Future<Map<String, dynamic>> fetchDataById(String id) async {
     final token = await getAuthToken();
     if (token == null) {
@@ -88,7 +88,7 @@ class DataService {
 
     if (response.statusCode == 200) {
       try {
-        return json.decode(response.body);  // Décodage du JSON
+        return json.decode(response.body);  
       } catch (e) {
         throw Exception("Erreur de décodage de la réponse JSON");
       }

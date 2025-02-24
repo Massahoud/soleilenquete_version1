@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl = "http://192.168.1.81:3000/api"; 
+  final String baseUrl = "https://soleilmainapi.vercel.app/api"; 
 
   Future<void> login(String email, String password) async {
     final response = await http.post(

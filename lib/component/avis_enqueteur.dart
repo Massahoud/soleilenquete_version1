@@ -82,7 +82,7 @@ class UserCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // Description
+         
             Text(
               'Kwame vit avec ses parents dans une habitation louée, située dans les zones non aménagées du secteur 05. Sa mère travaille comme couturière, tandis que son père, sans emploi stable, effectue occasionnellement des travaux de déchargement de camions à l’autogare. En plus de la distance qui le sépare de l’école, Kwame doit souvent aider ses parents pour subvenir aux besoins de la famille. Chaque matin, il se lève avant l’aube pour aller chercher de l’eau au puits communal, une tâche essentielle dans leur quartier.',
               style: TextStyle(

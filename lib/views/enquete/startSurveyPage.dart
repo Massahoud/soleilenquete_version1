@@ -28,7 +28,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
   final TextEditingController contactenfantController = TextEditingController();
   final TextEditingController nomcontactenfantController =
       TextEditingController();
-  File? _image; // Stockage des images sur Mobile
+  File? _image; 
   html.File? _imageFile;
   final _formKey = GlobalKey<FormState>();
   final _surveyService = SurveyService();
@@ -55,14 +55,14 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
 
   Future<String> getnextNumberOrder() async {
     String nextNumberOrder =
-        '1'; // Par défaut, si aucune question n'existe encore
+        '1'; 
 
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await FirebaseFirestore.instance.collection('enquete').get();
     List<DocumentSnapshot<Map<String, dynamic>>> documents = querySnapshot.docs;
 
     if (documents.isNotEmpty) {
-      // Trier les documents en fonction du champ 'numero', en gérant les valeurs nulles ou incorrectes
+     
       documents.sort((a, b) {
         int aNumero = int.tryParse(a.data()?['numero'] ?? '0') ?? 0;
         int bNumero = int.tryParse(b.data()?['numero'] ?? '0') ?? 0;
@@ -134,23 +134,23 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
   }
 
   Future<void> _savePartialSurvey() async {
-    // Vérification de l'image et assignation de l'URL de l'image
+    
     String? imageUrl;
 
     if (_image != null) {
-      // Si l'image est locale (fichier), obtenir son chemin (ou une URL locale si nécessaire)
+   
       imageUrl = _image!
-          .path; // Utiliser un chemin de fichier local ou transformer en URL si besoin
+          .path; 
       print("Image locale utilisée : $imageUrl");
     } else if (_imageFile != null) {
-      // Si c'est un fichier Blob (web), générer une URL pour l'image
+  
       imageUrl = html.Url.createObjectUrl(_imageFile!);
       print("Image Blob utilisée : $imageUrl");
     } else {
       print("Aucune image n'a été fournie.");
     }
 
-    // Créer l'objet SurveyModel avec les données saisies, y compris photoUrl
+    
     _tempSurvey = SurveyModel(
       id: '',
       numero: numeroController.text.isNotEmpty ? numeroController.text : 'N/A',
@@ -504,7 +504,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                   SizedBox(height: 20),
                   GestureDetector(
                     onTap: () => _pickOrCaptureImage(
-                        context), // Appelle la fonction combinée
+                        context), 
                     child: Container(
                       height: 200,
                       width: double.infinity,
@@ -513,12 +513,12 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                       ),
                       child: _image != null
                           ? Image.file(_image!,
-                              fit: BoxFit.cover) // Affichage pour mobile
+                              fit: BoxFit.cover)
                           : _imageFile != null
                               ? Image.network(
                                   html.Url.createObjectUrl(_imageFile!),
                                   height: 150,
-                                ) // Affichage pour Web avec URL Blob
+                                ) 
                               : Center(child: Icon(Icons.camera_alt, size: 50)),
                     ),
                   ),
@@ -545,13 +545,13 @@ class _ContactFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
-    // Ajoute un espace tous les deux chiffres
+
     if (newValue.text.length <= 8) {
       final StringBuffer newText = StringBuffer();
 
       for (int i = 0; i < newValue.text.length; i++) {
         if (i > 0 && i % 2 == 0) {
-          newText.write(' '); // Ajoute un espace tous les deux chiffres
+          newText.write(' '); 
         }
         newText.write(newValue.text[i]);
       }
@@ -562,7 +562,7 @@ class _ContactFormatter extends TextInputFormatter {
       );
     }
 
-    // Si la longueur est supérieure à 8, retourne la valeur précédente
+   
     return oldValue;
   }
 }

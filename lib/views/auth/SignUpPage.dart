@@ -38,11 +38,11 @@ class _SignUpPageState extends State<SignUpPage> {
           telephone: _telephone,
           statut: _statut,
           groupe: _groupe,
-          photo: '', // Ajoutez cette ligne si nécessaire
+          photo: '', 
         );
         await _userService.createUser(newUser, _imageFile);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User created successfully')));
-        Navigator.pushReplacementNamed(context, '/login'); // Rediriger vers la page de connexion après l'inscription
+        Navigator.pushReplacementNamed(context, '/login'); 
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create user: ${e.toString()}')));
       } finally {
@@ -54,7 +54,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> _pickImage() async {
-    html.FileUploadInputElement uploadInput = html.FileUploadInputElement(); // Utilisez le type correct ici
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement(); 
     uploadInput.accept = 'image/*';
     uploadInput.click();
 
@@ -190,7 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login'); // Naviguer vers la page de connexion
+                  Navigator.pushReplacementNamed(context, '/login');
                 },
                 child: Text('Already have an account? Login'),
               ),

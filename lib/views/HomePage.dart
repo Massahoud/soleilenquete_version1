@@ -20,10 +20,13 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/téléchargement.jpeg'),
-                        fit: BoxFit.cover, // Ajuste l'image
+                        fit: BoxFit.cover, 
                       ),
                     ),
                   ),
+                    const SizedBox(height: 20),
+                   _buildNavItem(context, 'Enquête', '/dashboard', Icons.poll),
+                  
                   const SizedBox(height: 20),
                   _buildNavItem(context, 'Utilisateurs', '/users', Icons.people),
                    const SizedBox(height: 20),
@@ -35,15 +38,16 @@ class HomePage extends StatelessWidget {
                   _buildNavItem(
                       context, 'Formulaire', '/question',Icons.app_registration),
                        const SizedBox(height: 20),
-                  _buildNavItem(context, 'Enquête', '/enquete', Icons.poll),
-                   const SizedBox(height: 20),
+                 
                   _buildNavItem(
                       context, 'Signup', '/signup', Icons.app_registration),
                        const SizedBox(height: 20),
                   _buildNavItem(context, 'Nuage de point', '/nuageDePoint',
                       Icons.scatter_plot),
+                        const SizedBox(height: 20),
                       _buildNavItem(context, 'Faire une enquete', '/createSurvey',
                       Icons.scatter_plot),
+                       
                 ],
               ),
             ),

@@ -19,7 +19,7 @@ class _GroupsListPageState extends State<GroupsListPage> {
     _fetchGroups();
   }
 
-  // Récupérer les groupes
+ 
   Future<void> _fetchGroups() async {
     final groupService = GroupService();
     try {
@@ -38,7 +38,7 @@ class _GroupsListPageState extends State<GroupsListPage> {
     }
   }
 
-  // Supprimer un groupe
+ 
   Future<void> _deleteGroup(String groupId) async {
     final groupService = GroupService();
     try {
@@ -56,7 +56,7 @@ class _GroupsListPageState extends State<GroupsListPage> {
     }
   }
 
-  // Naviguer vers la page de mise à jour
+  
   Future<void> _navigateToUpdateGroup(GroupModel group) async {
     final updatedGroup = await Navigator.push(
       context,
@@ -73,7 +73,7 @@ class _GroupsListPageState extends State<GroupsListPage> {
     }
   }
 
-  // Naviguer vers la page de création de groupe
+ 
   Future<void> _navigateToCreateGroup() async {
     final newGroup = await Navigator.push(
       context,

@@ -14,7 +14,7 @@ class ChatMessage {
     required this.date,
   });
 
-  // Factory constructor to create a ChatMessage from JSON
+  
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       id: json['_id'] ?? '',
@@ -25,7 +25,7 @@ class ChatMessage {
     );
   }
 
-  // Convert a ChatMessage to JSON
+  
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -36,9 +36,9 @@ class ChatMessage {
     };
   }
 
-  // Méthode pour formater la date en "16 janvier 2025"
+ 
   String get formattedDate {
-    final DateFormat dateFormat = DateFormat('d MMMM yyyy', 'fr_FR'); // Format en français
+    final DateFormat dateFormat = DateFormat('d MMMM yyyy', 'fr_FR'); 
     return dateFormat.format(date);
   }
 }

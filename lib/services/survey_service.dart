@@ -10,7 +10,7 @@ import 'package:http_parser/http_parser.dart';
 import '../models/survey_model.dart';
 
 class SurveyService {
-  final String baseUrl = "http://192.168.1.81:3000/api"; // Remplace par l'URL de ton API
+  final String baseUrl = "https://soleilmainapi.vercel.app/api"; 
 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();

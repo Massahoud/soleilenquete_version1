@@ -3,7 +3,7 @@ import 'package:soleilenquete/services/enquete_service.dart';
 import 'package:soleilenquete/services/chat_service.dart';
 import 'package:soleilenquete/models/chat_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart'; // Importez la bibliothèque intl
+import 'package:intl/intl.dart'; 
 
 class EnqueteDetailPage extends StatefulWidget {
   final String enqueteId;
@@ -71,7 +71,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
     if (text.isEmpty) return;
 
     try {
-      // Récupérer l'ID utilisateur depuis SharedPreferences
+      
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
 
@@ -84,14 +84,14 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
         return;
       }
 
-      // Créer le message
+   
       final newMessage = await chatService.createMessage(
         enqueteId: widget.enqueteId,
         userId: userId,
         text: text,
       );
 
-      // Ajouter le message à la liste et vider le champ de saisie
+      
       setState(() {
         messages.add(newMessage);
       });
@@ -104,7 +104,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
     }
   }
 
-  // Méthode pour formater la date en "16 janvier 2025"
+  
   String formatDate(DateTime date) {
     final DateFormat dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
     return dateFormat.format(date);
@@ -123,7 +123,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Première colonne : Informations sur l'enquête
+                    
                     Expanded(
                       flex: 1,
                       child: Padding(
@@ -147,7 +147,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
                       ),
                     ),
 
-                    // Deuxième colonne : Réponses associées
+                    
                     Expanded(
                       flex: 2,
                       child: Padding(
@@ -205,7 +205,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
                       ),
                     ),
 
-                    // Troisième colonne : Chat
+                    
                     Expanded(
                       flex: 1,
                       child: Padding(
@@ -234,7 +234,7 @@ class _EnqueteDetailPageState extends State<EnqueteDetailPage> {
                                         style: const TextStyle(fontSize: 16),
                                       ),
                                       subtitle: Text(
-                                        'Envoyé par: ${message.userId} - ${formatDate(message.date)}', // Affichage de la date formatée
+                                        'Envoyé par: ${message.userId} - ${formatDate(message.date)}',
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey,

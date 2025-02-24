@@ -19,7 +19,7 @@ class _UpdateGroupPageState extends State<UpdateGroupPage> {
   final _dateController = TextEditingController();
 
   List<UserModel> _users = [];
-  List<String> _selectedMembers = [];  // Gardé en tant que String
+  List<String> _selectedMembers = [];  
   bool _isLoading = true;
 
   @override
@@ -29,8 +29,8 @@ class _UpdateGroupPageState extends State<UpdateGroupPage> {
     _descriptionController.text = widget.group.description;
     _dateController.text = widget.group.date_creation;
     _fetchUsers();
-    _selectedMembers = List<String>.from(widget.group.membres); // Assurez-vous que c'est une liste de String
-    print("Initial selected members: $_selectedMembers"); // Affiche les membres initialement sélectionnés
+    _selectedMembers = List<String>.from(widget.group.membres); 
+    print("Initial selected members: $_selectedMembers"); 
   }
 
   Future<void> _fetchUsers() async {
@@ -64,7 +64,7 @@ class _UpdateGroupPageState extends State<UpdateGroupPage> {
 
     final groupService = GroupService();
     try {
-      // Mise à jour du groupe
+     
       print("Updating group with ID: ${widget.group.id}");
       final updatedGroup = await groupService.updateGroup(
         widget.group.id,
@@ -75,7 +75,7 @@ class _UpdateGroupPageState extends State<UpdateGroupPage> {
       );
       print("Group updated successfully: ${updatedGroup.id}");
 
-      // Mise à jour du champ 'groupe' pour chaque utilisateur sélectionné
+    
       final userService = UserService();
       for (var userId in _selectedMembers) {
         try {
@@ -150,20 +150,20 @@ class _UpdateGroupPageState extends State<UpdateGroupPage> {
                       itemCount: _users.length,
                       itemBuilder: (context, index) {
                         final user = _users[index];
-                        print('User ${user.nom} with id ${user.id}'); // Affiche l'utilisateur et son ID
+                        print('User ${user.nom} with id ${user.id}');
                         return CheckboxListTile(
                           title: Text(user.nom),
-                          value: _selectedMembers.contains(user.id), // Utilise user.id en String
+                          value: _selectedMembers.contains(user.id), 
                           onChanged: (bool? value) {
                             setState(() {
                               if (value == true) {
                                 print('Adding user ${user.id} to selected members');
-                                _selectedMembers.add(user.id!);  // Assurez-vous que l'ID est non nul
+                                _selectedMembers.add(user.id!);  
                               } else {
                                 print('Removing user ${user.id} from selected members');
-                                _selectedMembers.remove(user.id!);  // Assurez-vous que l'ID est non nul
+                                _selectedMembers.remove(user.id!); 
                               }
-                              print('Current selected members: $_selectedMembers'); // Affiche la liste des membres sélectionnés
+                              print('Current selected members: $_selectedMembers'); 
                             });
                           },
                         );

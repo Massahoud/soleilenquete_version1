@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:soleilenquete/services/enquete_service.dart';
-import 'package:soleilenquete/views/enquete/enquete_detail.dart';
+import 'package:soleilenquete/component/filtre/filtreEnquete.dart';
 
+import 'package:soleilenquete/component/search_bar.dart';
+import 'package:soleilenquete/services/enquete_service.dart';
+import 'package:soleilenquete/views/HomePage.dart';
+import 'package:soleilenquete/views/enquete/enquete_detail.dart';
 
 class EnqueteListePage extends StatefulWidget {
   const EnqueteListePage({Key? key}) : super(key: key);
@@ -24,6 +27,7 @@ class _EnqueteListePageState extends State<EnqueteListePage> {
   Future<void> fetchEnquetes() async {
     try {
       final data = await enqueteService.fetchAllEnquetes();
+      print(data); // Vérification des données
       setState(() {
         enquetes = data;
         isLoading = false;
@@ -41,18 +45,41 @@ class _EnqueteListePageState extends State<EnqueteListePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Liste des Enquêtes'),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: enquetes.length,
-              itemBuilder: (context, index) {
-                final enquete = enquetes[index];
-                return EnqueteCard(enquete: enquete);
-              },
+      backgroundColor: Colors.grey[100],
+      body: Row(
+        children: [
+          // Barre latérale
+          Container(
+            width: MediaQuery.of(context).size.width * 0.2,
+            color: Colors.blue,
+            child: HomePage(),
+          ),
+          // Contenu principal
+          Expanded(
+            child: Column(
+              children: [
+                SearchBarWidget(),
+                SizedBox(height: 20),
+                FiltersEnquete(),
+                SizedBox(height: 10),
+                isLoading
+                    ? Expanded(
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: enquetes.length,
+                          itemBuilder: (context, index) {
+                            final enquete = enquetes[index];
+                            return EnqueteCard(enquete: enquete);
+                          },
+                        ),
+                      ),
+              ],
             ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -69,10 +96,10 @@ class EnqueteCard extends StatelessWidget {
     final age = enquete['age_enfant']?.toString() ?? 'N/A';
     final sexe = enquete['sexe_enfant'] ?? 'N/A';
     final numero = enquete['numero'] ?? 'N/A';
-    final photoUrl = enquete['photo_url'] ??
-        'https://via.placeholder.com/150'; // URL par défaut si photo_url est vide.
+    final photoUrl = enquete['photo_url'] ?? 'https://via.placeholder.com/150';
 
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 4,
       child: ListTile(
@@ -87,8 +114,7 @@ class EnqueteCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  EnqueteDetailPage(enqueteId: enquete['id']),
+              builder: (context) => EnqueteDetailPage(enqueteId: enquete['id']),
             ),
           );
         },

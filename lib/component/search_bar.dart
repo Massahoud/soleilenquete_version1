@@ -85,7 +85,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                             title: Text("Mes informations"),
                             onTap: () {
                               Navigator.pop(context);
-                              // Ajouter la navigation vers la page du profil ici
+                              
                             },
                           ),
                         ),

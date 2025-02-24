@@ -3,18 +3,20 @@ import 'package:soleilenquete/component/filtre/filtreQuestion.dart';
 import 'package:soleilenquete/component/filtre/filtreUser.dart';
 import 'package:soleilenquete/component/search_bar.dart';
 import 'package:soleilenquete/views/HomePage.dart';
+import 'package:soleilenquete/views/question/update_question.dart';
 
 import '../../../models/question_model.dart';
 import '../../../models/reponse_model.dart';
 import '../../../services/question_service.dart';
 import '../../../services/response_service.dart';
+
 class QuestionsPage extends StatefulWidget {
   @override
   _QuestionPageState createState() => _QuestionPageState();
 }
 
 class _QuestionPageState extends State<QuestionsPage> {
-    String errorMessage = '';
+  String errorMessage = '';
   List<Map<String, dynamic>> questionsWithResponses = [];
 
   @override
@@ -30,13 +32,14 @@ class _QuestionPageState extends State<QuestionsPage> {
         _loadResponses(question);
       }
     } catch (e) {
-      setState(() {
-        errorMessage = e.toString();
-      });
+     if (e.toString().contains('Unauthorized')) {
+      // Vérification spécifique pour l'erreur de rôle
+      _showRoleErrorDialog();
+    }
     }
   }
 
- void _loadResponses(Question question) async {
+  void _loadResponses(Question question) async {
   setState(() {
     questionsWithResponses.add({
       'question': question,
@@ -45,9 +48,11 @@ class _QuestionPageState extends State<QuestionsPage> {
   });
 
   try {
-    final responses = await ResponseService().getResponsesByQuestionId(question.id!);
+    final responses =
+        await ResponseService().getResponsesByQuestionId(question.id!);
     setState(() {
-      final index = questionsWithResponses.indexWhere((q) => q['question'].id == question.id);
+      final index = questionsWithResponses
+          .indexWhere((q) => q['question'].id == question.id);
       if (index != -1) {
         questionsWithResponses[index]['responses'] = responses;
       }
@@ -55,130 +60,187 @@ class _QuestionPageState extends State<QuestionsPage> {
   } catch (e) {
     print("Erreur lors du chargement des réponses: $e");
 
-    if (e.toString().contains('Unauthorized') || e.toString().contains('403')) {
+    if (e.toString().contains('Unauthorized') ||
+        e.toString().contains('403')) {
       _showTokenErrorDialog();
-    }
+    } 
   }
 }
 
-void _showTokenErrorDialog() {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Session Expirée"),
-        content: Text("Votre session a expiré. Veuillez vous reconnecter."),
+// Méthode pour afficher le dialogue d'erreur de rôle
+void _showRoleErrorDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Erreur de rôle"),
+        content: Text("Vous n'avez pas les autorisations nécessaires pour charger ces réponses."),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
-              // Ajoute ici une redirection vers la page de connexion si nécessaire
+              Navigator.of(context).pop(); // Fermer le dialogue
             },
             child: Text("OK"),
           ),
         ],
-      ),
-    );
-  });
-}
-
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey[100], // Fond personnalisé pour le Scaffold
-    body: Row(
-      children: [
-        // Panneau latéral gauche
-        Container(
-          width: MediaQuery.of(context).size.width * 0.2, // 20% of screen width
-          color: Colors.blue, // Customize this as needed
-          child: HomePage(), // Remplacer par ton widget
-        ),
-        
-        // Section principale à droite
-        Expanded(
-          child: Column(
-            children: [
-              SearchBarWidget(),
-              SizedBox(height: 20),
-              FiltersQuestion(),
-              // Card principale avec contenu
-              Card(
-                color: Colors.white, // Fond blanc pour la Card
-                elevation: 4, // Ajoute de l'ombre
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Coins arrondis pour la card
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                   
-                    children: [
-                      // Contenu de _buildHeaderAndTabs
-                      _buildHeaderAndTabs(),
-                      SizedBox(height: 10),
-                      // Contenu de _buildQuestionCard
-                      _buildQuestionCard(), // Pas besoin de Expanded ici, la Card s'ajuste automatiquement
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
+      );
+    },
   );
 }
 
 
+  void _showTokenErrorDialog() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Session Expirée"),
+          content: Text("Votre session a expiré. Veuillez vous reconnecter."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // Ajoute ici une redirection vers la page de connexion si nécessaire
+              },
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100], // Fond personnalisé pour le Scaffold
+      body: Row(
+        children: [
+          // Panneau latéral gauche
+          Container(
+            width:
+                MediaQuery.of(context).size.width * 0.2, // 20% of screen width
+            color: Colors.blue, // Customize this as needed
+            child: HomePage(), // Remplacer par ton widget
+          ),
+
+          // Section principale à droite
+          Expanded(
+            child: Column(
+              children: [
+                SearchBarWidget(),
+                SizedBox(height: 20),
+                FiltersQuestion(),
+                // Card principale avec contenu
+                Card(
+                  color: Colors.white, // Fond blanc pour la Card
+                  elevation: 4, // Ajoute de l'ombre
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        10), // Coins arrondis pour la card
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Contenu de _buildHeaderAndTabs
+                        _buildHeaderAndTabs(),
+                        SizedBox(height: 10),
+                        // Contenu de _buildQuestionCard
+                        _buildQuestionCard(), // Pas besoin de Expanded ici, la Card s'ajuste automatiquement
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   /// 🔹 Carte contenant la question et les réponses
-Widget _buildQuestionCard() {
-  return errorMessage.isNotEmpty
-      ? Center(child: Text(errorMessage, style: TextStyle(color: Colors.red)))
-      : SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height*0.65, // Adjust the height
-                child: ListView.builder(
-                  itemCount: questionsWithResponses.length,
-                  itemBuilder: (context, index) {
-                    final question = questionsWithResponses[index]['question'] as Question;
-                    
-                    final responses = questionsWithResponses[index]['responses'] as List<Response>? ?? [];
+  Widget _buildQuestionCard() {
+    return errorMessage.isNotEmpty
+        ? Center(child: Text(errorMessage, style: TextStyle(color: Colors.red)))
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height *
+                      0.65, // Adjust the height
+                  child: ListView.builder(
+                    itemCount: questionsWithResponses.length,
+                    itemBuilder: (context, index) {
+                      final question =
+                          questionsWithResponses[index]['question'] as Question;
+                      final responses = questionsWithResponses[index]
+                              ['responses'] as List<Response>? ??
+                          [];
 
-                    return Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${question.numero}: ${question.question_text}',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 10),
-                          Column(
-                            children: responses.map((response) => _buildResponseRow(response)).toList(),
-                          ),
-                          Divider(thickness: 1)
-                        ],
-                      ),
-                      
-                    );
-                    
-                  },
+                      return Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment
+                                  .start, // Alignement au début
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${question.numero}: ${question.question_text}',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                    softWrap: true,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () {
+                                    final String questionId = question.id ?? '';
+                                    final List<String> responseIds = responses
+                                        .map((response) => response.id ?? '')
+                                        .toList();
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            UpdateQuestionPage(
+                                          questionId: questionId,
+                                          responseIds: responseIds,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Column(
+                              children: responses
+                                  .map(
+                                      (response) => _buildResponseRow(response))
+                                  .toList(),
+                            ),
+                            Divider(thickness: 1),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-          
-        );
-}
+              ],
+            ),
+          );
+  }
 
-  /// 🔹 Header et Onglets alignés
+ 
   Widget _buildHeaderAndTabs() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +262,7 @@ Widget _buildQuestionCard() {
     );
   }
 
-  /// 🔹 Catégories (Alignées avec les colonnes de réponses)
+
   Widget _buildCategoryTabs() {
     List<String> categories = [
       "Alimentation",
@@ -213,14 +275,14 @@ Widget _buildQuestionCard() {
     ];
 
     return Row(
-  children: [
-    SizedBox(width: 80),
-    for (var category in categories)
-      Flexible( // ✅ Utilisation correcte
-        child: Center(
-          child: Text(
-            category,
-
+      children: [
+        SizedBox(width: 80),
+        for (var category in categories)
+          Flexible(
+            // ✅ Utilisation correcte
+            child: Center(
+              child: Text(
+                category,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -231,85 +293,87 @@ Widget _buildQuestionCard() {
   }
 
   /// 🔹 Tableau des Réponses
- Widget _buildResponseTable(List<Response> responses) {
-  return Column(
-    children: responses.map((response) => _buildResponseRow(response)).toList(),
-  );
-}
+  Widget _buildResponseTable(List<Response> responses) {
+    return Column(
+      children:
+          responses.map((response) => _buildResponseRow(response)).toList(),
+    );
+  }
 
   /// 🔹 Widget affichant le label ("Oui" ou "Non")
 
+  Widget _buildResponseValues(Response response) {
+    // Crée une liste de catégories à afficher, en utilisant les propriétés de la réponse,
+    // et convertit les valeurs non-String en String si nécessaire.
+    List<String> categories = [
+      (response.alimentation?.toString() ?? "Non spécifié"),
+      (response.cadre_vie?.toString() ?? "Non spécifié"),
+      (response.education?.toString() ?? "Non spécifié"),
+      (response.pauvrete?.toString() ?? "Non spécifié"),
+      (response.sante_physique?.toString() ?? "Non spécifié"),
+      (response.violence?.toString() ?? "Non spécifié"),
+      (response.indice_sortir?.toString() ?? "Non spécifié"),
+    ];
 
-Widget _buildResponseValues(Response response) {
-  // Crée une liste de catégories à afficher, en utilisant les propriétés de la réponse,
-  // et convertit les valeurs non-String en String si nécessaire.
-  List<String> categories = [
-    (response.alimentation?.toString() ?? "Non spécifié"),
-    (response.cadre_vie?.toString() ?? "Non spécifié"),
-    (response.education?.toString() ?? "Non spécifié"),
-    (response.pauvrete?.toString() ?? "Non spécifié"),
-    (response.sante_physique?.toString() ?? "Non spécifié"),
-    (response.violence?.toString() ?? "Non spécifié"),
-    (response.indice_sortir?.toString() ?? "Non spécifié"),
-  ];
-
-  return Expanded(
-    child: Row(
-      children: categories.map((categoryValue) {
-        return Expanded(
-          child: Center(
-            child: Text(
-              categoryValue, // Affiche la valeur de chaque catégorie
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
+    return Expanded(
+      child: Row(
+        children: categories.map((categoryValue) {
+          return Expanded(
+            child: Center(
+              child: Text(
+                categoryValue, // Affiche la valeur de chaque catégorie
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-        );
-      }).toList(),
-    ),
-  );
-}
-Widget _buildResponseRow(Response response) {
-  return Container(
-    margin: EdgeInsets.only(bottom: 5),
-    decoration: BoxDecoration(
-      color: Colors.grey[100],
-      borderRadius: BorderRadius.circular(8),
-    ),
-    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Afficher la question ou la réponse textuelle (avec vérification si vide)
-        SizedBox(
-          width:300,
-          child: response.reponse_text.isNotEmpty 
-              ? Text(
-                  response.reponse_text, // Affichage de la réponse textuelle si elle existe
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                )
-              : TextField(
-                  enabled: false, // Désactive le champ de texte pour éviter toute modification
-                  decoration: InputDecoration(
-                    hintText: "Réponse non fournie", // Texte de remplacement
-                    filled: true,
-                    fillColor: Colors.grey[300], // Couleur de fond pour indiquer que c'est un champ non modifiable
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildResponseRow(Response response) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Afficher la question ou la réponse textuelle (avec vérification si vide)
+          SizedBox(
+            width: 300,
+            child: response.reponse_text.isNotEmpty
+                ? Text(
+                    response
+                        .reponse_text, // Affichage de la réponse textuelle si elle existe
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  )
+                : TextField(
+                    enabled:
+                        false, // Désactive le champ de texte pour éviter toute modification
+                    decoration: InputDecoration(
+                      hintText: "Réponse non fournie", // Texte de remplacement
+                      filled: true,
+                      fillColor: Colors.grey[
+                          300], // Couleur de fond pour indiquer que c'est un champ non modifiable
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                  ),
-                ), // Affichage du champ de texte obscurci
-        ),
-        
-        // Affichage des valeurs de réponses spécifiques par catégorie
-        SizedBox(width:150),
-        _buildResponseValues(response), // Passer la réponse à la méthode _buildResponseValues
-      ],
-    ),
-  );
-}
+                  ), // Affichage du champ de texte obscurci
+          ),
 
-
-
+          // Affichage des valeurs de réponses spécifiques par catégorie
+          SizedBox(width: 150),
+          _buildResponseValues(
+              response), // Passer la réponse à la méthode _buildResponseValues
+        ],
+      ),
+    );
+  }
 }

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = 'http://192.168.1.81:3000/api/sendInvite/invite';
+  static const String apiUrl = 'https://soleilmainapi.vercel.app/api/sendInvite/invite';
 
-  // Méthode pour envoyer l'email d'invitation
+  
   Future<void> sendInvite(String email, String role) async {
     try {
       print("[INFO] Envoi de la requête au serveur...");
@@ -20,7 +20,7 @@ class AuthService {
       if (response.statusCode == 200) {
         print("[SUCCESS] Email envoyé avec succès !");
         
-        // Extraire le token de la réponse si disponible
+   
         final responseData = json.decode(response.body);
         if (responseData.containsKey('token')) {
           await setAuthToken(responseData['token']);
@@ -35,13 +35,13 @@ class AuthService {
     }
   }
 
-  // Enregistrer le token dans SharedPreferences
+ 
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
-  // Récupérer le token depuis SharedPreferences
+  
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');

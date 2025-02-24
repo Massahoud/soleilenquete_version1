@@ -12,7 +12,7 @@ class CreateGroupPage extends StatefulWidget {
 class _CreateGroupPageState extends State<CreateGroupPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _dateController = TextEditingController();  // Controller pour la date
+  final _dateController = TextEditingController(); 
 
   List<UserModel> _users = [];
   List<String> _selectedMembers = [];
@@ -54,7 +54,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   }
 
   try {
-    // Assurez-vous que _selectedMembers est une liste de String
+   
     List<String> membersList = _selectedMembers.map((e) => e.toString()).toList();
 
     final groupService = GroupService();
@@ -127,10 +127,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     decoration: InputDecoration(labelText: 'Description du Groupe'),
                   ),
                   TextField(
-                    controller: _dateController,  // Champ de date
+                    controller: _dateController,  
                     decoration: InputDecoration(
                       labelText: 'Date de Création',
-                      hintText: 'YYYY-MM-DD',  // Format attendu
+                      hintText: 'YYYY-MM-DD',  
                     ),
                     keyboardType: TextInputType.datetime,
                     onTap: () async {
@@ -141,7 +141,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         lastDate: DateTime(2101),
                       );
                       if (selectedDate != null) {
-                        // Mise à jour du champ de date avec la date sélectionnée
+                     
                         _dateController.text = GroupModel.getCurrentDate();
                       }
                     },

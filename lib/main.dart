@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'package:soleilenquete/views/question/question_liste.dart';
 
 import 'package:soleilenquete/views/auth/login_screen.dart';
 
 import 'package:soleilenquete/views/HomePage.dart';
 
-import 'package:soleilenquete/views/auth/SignUpPage.dart';
+import 'package:soleilenquete/views/auth/signup_screen.dart';
 import 'package:soleilenquete/views/enquete/startSurveyPage.dart';
 
 
@@ -25,7 +26,7 @@ import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/views/enquete/SurveyPage.dart';
 
-import 'package:soleilenquete/widget/tableauhead.dart';
+
 
 // Importez votre configuration Firebase
 import 'firebase_options.dart';
@@ -49,10 +50,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/dashboard',
+      initialRoute: '/login',
       routes: {
-        '/dashboard': (context) => LoginPages(),
-        '/signup': (context) => SignUpPage(),
+        '/login': (context) => LoginPages(),
+        '/signup': (context) => SignUpPages(),
       
        
         '/home': (context) => HomePage(),
@@ -61,10 +62,11 @@ class MyApp extends StatelessWidget {
        '/groups/create': (context) => CreateGroupPage(),
        '/groups': (context) => GroupsListPage(),
         '/question': (context) => QuestionsPage(),
-        '/enquete': (context) => EnqueteListePage(),
+        '/dashboard': (context) => EnqueteListePage(),
         '/nuageDePoint': (context) => ScatterPlotPage(),
        
          '/survey': (context) => SurveyPage(),
+         
          
       '/question/create': (context) => CreateQuestionPage(),
       },

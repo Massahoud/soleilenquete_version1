@@ -3,21 +3,21 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EnqueteService {
-  final String baseUrl = "http://192.168.1.81:3000"; // Remplacez par l'URL publique si nécessaire.
+  final String baseUrl = "https://soleilmainapi.vercel.app"; 
 
-  // Enregistrer le token dans SharedPreferences
+
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
-  // Récupérer le token depuis SharedPreferences
+ 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
   }
 
-  // Récupérer toutes les enquêtes
+
   Future<List<dynamic>> fetchAllEnquetes() async {
     final token = await getAuthToken();
     if (token == null) {
@@ -39,7 +39,7 @@ class EnqueteService {
     }
   }
 
-  // Récupérer une enquête par ID
+ 
   Future<Map<String, dynamic>> fetchEnqueteById(String id) async {
     final token = await getAuthToken();
     if (token == null) {
@@ -61,7 +61,7 @@ class EnqueteService {
     }
   }
 
-  // Récupérer toutes les réponses pour une enquête
+  
   Future<List<dynamic>> fetchReponsesByEnqueteId(String enquete_id) async {
     final token = await getAuthToken();
     if (token == null) {

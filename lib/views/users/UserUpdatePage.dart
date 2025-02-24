@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:html' as html;
 import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
-
+import 'package:soleilenquete/component/customTextField.dart';
 class UpdateUserPage extends StatefulWidget {
   final UserModel user;
 
@@ -116,45 +116,71 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              if (_imageBytes != null)
-                Image.memory(_imageBytes!,
-                    height: 150, width: 150, fit: BoxFit.cover)
-              else if (widget.user.photo != null)
-                Image.network(widget.user.photo!,
-                    height: 150, width: 150, fit: BoxFit.cover)
-              else
-                Icon(Icons.person, size: 150),
-              SizedBox(height: 16),
-              TextFormField(
-                  controller: _nomController,
-                  decoration: InputDecoration(labelText: 'Nom')),
-              TextFormField(
-                  controller: _prenomController,
-                  decoration: InputDecoration(labelText: 'Prenom')),
-              TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(labelText: 'Email')),
-              TextFormField(
-                  controller: _telephoneController,
-                  decoration: InputDecoration(labelText: 'Telephone')),
-              TextFormField(
-                  controller: _statutController,
-                  decoration: InputDecoration(labelText: 'Statut')),
-              TextFormField(
-                  controller: _groupeController,
-                  decoration: InputDecoration(labelText: 'Groupe')),
-              SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: _pickImage, child: Text('Select Image')),
-              SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: _updateUser, child: Text('Update User')),
-            ],
-          ),
+  key: _formKey,
+  child: ListView(
+    children: [
+      Center(
+        child: Stack(
+          children: [
+            CircleAvatar(
+              radius: 75,
+              backgroundColor: Colors.grey[300],
+              backgroundImage: _imageBytes != null
+                  ? MemoryImage(_imageBytes!)
+                  : widget.user.photo != null
+                      ? NetworkImage(widget.user.photo!)
+                      : null,
+              child: _imageBytes == null && widget.user.photo == null
+                  ? Icon(Icons.person, size: 75, color: Colors.white)
+                  : null,
+            ),
+            Positioned(
+              bottom: 5,
+              right: 5,
+              child: InkWell(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.blue,
+                  child: Icon(Icons.photo_camera, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
+      ),
+      SizedBox(height: 16),
+      CustomTextField(
+          controller: _nomController,
+          hintText: "Entrez votre nom",
+          labelText: 'Nom'),
+      CustomTextField(
+          controller: _prenomController,
+          hintText: "Entrez votre prénom",
+          labelText: 'Prenom'),
+      CustomTextField(
+          controller: _emailController,
+          labelText: 'Email',
+          hintText: "Entrez votre Email"),
+      CustomTextField(
+          controller: _telephoneController,
+          labelText: 'Telephone',
+          hintText: "Entrez votre numéro de téléphone"),
+      CustomTextField(
+          controller: _statutController,
+          labelText: 'Statut',
+          hintText: "Entrez votre statut"),
+      CustomTextField(
+          controller: _groupeController,
+          labelText: 'Groupe',
+          hintText: "Groupes d'utilisateurs"),
+      SizedBox(height: 20),
+      ElevatedButton(
+          onPressed: _updateUser, child: Text('Update User')),
+    ],
+  ),
+),
+
       ),
     );
   }
