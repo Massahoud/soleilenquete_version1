@@ -30,7 +30,7 @@ class _LoginFormState extends State<LoginForm> {
 
     try {
       await _authService.login(_email, _motDePasse);
-      Navigator.pushReplacementNamed(context, '/users');
+      Navigator.pushReplacementNamed(context, '/dashboard');
     } catch (e) {
       setState(() {
         _hasError = true;
