@@ -5,7 +5,46 @@ import 'package:soleilenquete/component/search_bar.dart';
 import 'package:soleilenquete/services/enquete_service.dart';
 import 'package:soleilenquete/views/HomePage.dart';
 import 'package:soleilenquete/views/enquete/enquete_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+class DashboardRedirectPage extends StatefulWidget {
+  @override
+  _DashboardRedirectPageState createState() => _DashboardRedirectPageState();
+}
 
+class _DashboardRedirectPageState extends State<DashboardRedirectPage> {
+  @override
+  void initState() {
+    super.initState();
+    _redirectToReact();
+  }
+
+  Future<void> _redirectToReact() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('authToken');
+
+    if (token != null) {
+      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token";
+      if (await canLaunch(reactUrl)) {
+        await launch(reactUrl, forceWebView: false);
+      } else {
+        print("Impossible d'ouvrir l'URL");
+      }
+    } else {
+      print("Token non trouvé");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(), // Affiche un loader pendant la redirection
+      ),
+    );
+  }
+}
+/*
 class EnqueteListePage extends StatefulWidget {
   const EnqueteListePage({Key? key}) : super(key: key);
 
@@ -121,4 +160,4 @@ class EnqueteCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/

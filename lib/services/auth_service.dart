@@ -28,7 +28,7 @@ class AuthService {
       await prefs.setString('userId', userId);
       await prefs.setString('userRole', role);
 
-      print('Connexion réussie.');
+     
     } else if (response.statusCode == 429) {
       throw Exception('Trop de tentatives de connexion. Réessayez plus tard.');
     } else {

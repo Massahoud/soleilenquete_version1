@@ -161,8 +161,7 @@ try {
           indice_sortir: indiceSortir,
         );
 
-        // Afficher la réponse récupérée pour la mise à jour
-        print('Mise à jour de la réponse ${i + 1}: ${response.toJson()}');
+        
 
         // Appeler le service pour mettre à jour chaque réponse avec l'ID et la réponse
         await responseService.updateResponse(response.id ?? '', response); // Pass both ID and Response object

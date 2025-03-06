@@ -1,53 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:soleilenquete/services/hom_service.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? userRole;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    String? role = await getUserRole();
+    setState(() {
+      userRole = role;
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       body: Row(
         children: [
           Container(
             width: MediaQuery.of(context).size.width * 0.2,
             color: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  // Logo en haut
                   Container(
                     width: 120,
                     height: 110,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/images/téléchargement.jpeg'),
-                        fit: BoxFit.cover, 
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                    const SizedBox(height: 20),
-                   _buildNavItem(context, 'Enquête', '/dashboard', Icons.poll),
-                  
                   const SizedBox(height: 20),
-                  _buildNavItem(context, 'Utilisateurs', '/users', Icons.people),
-                   const SizedBox(height: 20),
-                  _buildNavItem(context, 'Groupes d\'utilisateurs ', '/groups', Icons.group),
-                   const SizedBox(height: 20),
-                  _buildNavItem(context, 'Create Group', '/groups/create',
-                      Icons.group_add),
-                       const SizedBox(height: 20),
-                  _buildNavItem(
-                      context, 'Formulaire', '/question',Icons.app_registration),
-                       const SizedBox(height: 20),
-                 
-                  _buildNavItem(
-                      context, 'Signup', '/signup', Icons.app_registration),
-                       const SizedBox(height: 20),
-                  _buildNavItem(context, 'Nuage de point', '/nuageDePoint',
-                      Icons.scatter_plot),
-                        const SizedBox(height: 20),
-                      _buildNavItem(context, 'Faire une enquete', '/createSurvey',
-                      Icons.scatter_plot),
-                       
+
+                  // Construire la liste des menus dynamiquement
+                  ..._buildMenuItems(context),
                 ],
               ),
             ),
@@ -57,28 +71,41 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(
-      BuildContext context, String title, String route, IconData icon,
-      {bool isLogout = false}) {
+  List<Widget> _buildMenuItems(BuildContext context) {
+    List<Widget> menuItems = [
+      _buildNavItem(context, 'Enquêtes', '/dashboard', Icons.poll),
+      _buildNavItem(context, 'Formulaires', '/question', Icons.app_registration),
+      _buildNavItem(context, 'Nuage de point', '/nuageDePoint', Icons.scatter_plot),
+      _buildNavItem(context, 'Faire une enquête', '/createSurvey', Icons.assignment),
+    ];
+
+    if (userRole == 'admin' || userRole == 'superadmin') {
+      menuItems.addAll([
+        const Divider(),
+        _buildNavItem(context, 'Utilisateurs', '/users', Icons.people),
+        _buildNavItem(context, 'Groupes d\'utilisateurs', '/groups', Icons.group),
+      ]);
+    }
+
+    if (userRole == 'superadmin') {
+      menuItems.add(_buildNavItem(context, 'Créer un Groupe', '/groups/create', Icons.group_add));
+    }
+
+    return menuItems;
+  }
+
+  Widget _buildNavItem(BuildContext context, String title, String route, IconData icon) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isLogout ? Colors.red : Colors.blueGrey,
-      ),
+      leading: Icon(icon, color: Colors.blueGrey),
       title: Text(
         title,
-        style: TextStyle(
-          color: isLogout ? Colors.red : Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       onTap: () {
-        if (isLogout) {
-          Navigator.pushReplacementNamed(context, route);
-        } else {
-          Navigator.pushNamed(context, route);
-        }
+        Navigator.pushNamed(context, route);
       },
     );
   }
+
+ 
 }

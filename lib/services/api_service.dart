@@ -1,14 +1,14 @@
 import 'dart:convert';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/models/user_model.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http_parser/http_parser.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';  
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+
 class UserService {
   final String baseUrl = "https://soleilmainapi.vercel.app/api";
 
@@ -29,9 +29,11 @@ Future<String?> getUserRole() async {
 }
 
   Future<String?> getAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('authToken');
-  }
+  final prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('authToken');
+  
+  return token;
+}
 
   Future<void> setAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();

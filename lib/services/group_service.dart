@@ -78,7 +78,7 @@ class GroupService {
   }
 
   
-  if (nom == null || description == null || date_creation == null || memberIds == null || memberIds.isEmpty) {
+  if (memberIds.isEmpty) {
     throw Exception('Invalid input: one or more fields are null or empty');
   }
 

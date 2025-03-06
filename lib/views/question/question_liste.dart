@@ -78,7 +78,7 @@ void _showRoleErrorDialog() {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Fermer le dialogue
+             Navigator.pushReplacementNamed(context, '/login'); 
             },
             child: Text("OK"),
           ),
@@ -99,8 +99,8 @@ void _showRoleErrorDialog() {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                // Ajoute ici une redirection vers la page de connexion si nécessaire
+               Navigator.pushReplacementNamed(context, '/login'); 
+              
               },
               child: Text("OK"),
             ),

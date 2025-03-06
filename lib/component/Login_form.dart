@@ -30,7 +30,7 @@ class _LoginFormState extends State<LoginForm> {
 
     try {
       await _authService.login(_email, _motDePasse);
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Navigator.pushReplacementNamed(context, '/users');
     } catch (e) {
       setState(() {
         _hasError = true;
@@ -102,19 +102,34 @@ class _LoginFormState extends State<LoginForm> {
                 style: TextStyle(color: Colors.red, fontSize: 14),
               ),
             ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/resetPassword');
-              },
-              child: Text(
-                'Mot de passe oublié ?',
-                style: TextStyle(color: Colors.orange),
-              ),
-            ),
-          ),
+         const SizedBox(height: 10),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/signup');
+      },
+      child: const Text(
+        "Créer un compte",
+        style: TextStyle(
+          color: Colors.orange,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, '/resetPassword');
+      },
+      child: const Text(
+        'Mot de passe oublié ?',
+        style: TextStyle(color: Colors.orange),
+      ),
+    ),
+  ],
+),
+
           const SizedBox(height: 30),
           _isLoading
               ? const CircularProgressIndicator()

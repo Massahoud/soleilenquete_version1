@@ -112,6 +112,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.grey[100],
       appBar: AppBar(title: Text('Update User')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -175,8 +176,23 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
           labelText: 'Groupe',
           hintText: "Groupes d'utilisateurs"),
       SizedBox(height: 20),
-      ElevatedButton(
-          onPressed: _updateUser, child: Text('Update User')),
+    ElevatedButton(
+                  onPressed: _updateUser,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                  child: const Text(
+                    "Se connecter",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                ),
     ],
   ),
 ),

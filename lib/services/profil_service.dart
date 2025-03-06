@@ -17,6 +17,12 @@ class ProfilService {
   }
 
  
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('authToken'); // Suppression du token
+    Navigator.pushNamedAndRemoveUntil(
+        context, '/login', (route) => false); // Redirection vers login
+  }
   Future<String?> getUserRole() async {
     final authToken = await _getAuthToken();
     if (authToken == null) {

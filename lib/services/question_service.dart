@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/question_model.dart';
-import '../models/reponse_model.dart';
+
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class QuestionService {
@@ -75,13 +75,9 @@ class QuestionService {
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      print('Statut HTTP: ${response.statusCode}');
-      print('Réponse brute: ${response.body}');
-
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
           final Map<String, dynamic> data = json.decode(response.body);
-          print('Données décodées: $data');
           return Question.fromJson(data);
         } else {
           throw Exception('Erreur: la réponse est vide');
@@ -127,7 +123,7 @@ class QuestionService {
 
   Future<Question> updateQuestion(String id, Question question) async {
     final token = await getAuthToken();
-    print('Mise à jour de la question : $id, Payload : ${question.toJson()}');
+   
     final response = await http.put(
       Uri.parse('$baseUrl/questions/$id'),
       headers: {
