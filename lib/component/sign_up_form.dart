@@ -177,7 +177,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 _motDePasse = value!;
               },
             ),
-           
+          
             SizedBox(height: 20),
             _isLoading
                 ? CircularProgressIndicator()

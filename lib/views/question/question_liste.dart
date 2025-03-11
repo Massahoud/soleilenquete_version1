@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/component/filtre/filtreQuestion.dart';
-import 'package:soleilenquete/component/filtre/filtreUser.dart';
+
 import 'package:soleilenquete/component/search_bar.dart';
 import 'package:soleilenquete/views/HomePage.dart';
 import 'package:soleilenquete/views/question/update_question.dart';
+import 'package:soleilenquete/widget/customDialog.dart';
 
 import '../../../models/question_model.dart';
 import '../../../models/reponse_model.dart';
@@ -34,7 +35,7 @@ class _QuestionPageState extends State<QuestionsPage> {
     } catch (e) {
      if (e.toString().contains('Unauthorized')) {
       // Vérification spécifique pour l'erreur de rôle
-      _showRoleErrorDialog();
+      showRoleErrorDialog(context);
     }
     }
   }
@@ -62,53 +63,41 @@ class _QuestionPageState extends State<QuestionsPage> {
 
     if (e.toString().contains('Unauthorized') ||
         e.toString().contains('403')) {
-      _showTokenErrorDialog();
+      showSessionExpiredDialog(context);
     } 
   }
 }
 
 // Méthode pour afficher le dialogue d'erreur de rôle
-void _showRoleErrorDialog() {
+
+void showRoleErrorDialog(BuildContext context) {
   showDialog(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Erreur de rôle"),
-        content: Text("Vous n'avez pas les autorisations nécessaires pour charger ces réponses."),
-        actions: [
-          TextButton(
-            onPressed: () {
-             Navigator.pushReplacementNamed(context, '/login'); 
-            },
-            child: Text("OK"),
-          ),
-        ],
-      );
-    },
+    builder: (context) => CustomDialog(
+      title: "Ereur",
+      content: "Vous n'avez pas les droits pour accéder à cette page",
+      buttonText: "OK",
+      onPressed: () {
+        Navigator.pushReplacementNamed(context, '/login');
+      },
+    ),
   );
 }
 
+void showSessionExpiredDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => CustomDialog(
+      title: "Session Expirée",
+      content: "Votre session a expiré. Veuillez vous reconnecter.",
+      buttonText: "OK",
+      onPressed: () {
+        Navigator.pushReplacementNamed(context, '/login');
+      },
+    ),
+  );
+}
 
-  void _showTokenErrorDialog() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Session Expirée"),
-          content: Text("Votre session a expiré. Veuillez vous reconnecter."),
-          actions: [
-            TextButton(
-              onPressed: () {
-               Navigator.pushReplacementNamed(context, '/login'); 
-              
-              },
-              child: Text("OK"),
-            ),
-          ],
-        ),
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

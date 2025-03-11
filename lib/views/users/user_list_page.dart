@@ -5,6 +5,7 @@ import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/views/HomePage.dart';
 import 'package:soleilenquete/services/profil_service.dart';
+import 'package:soleilenquete/widget/customDialog.dart';
 import 'package:soleilenquete/widget/tableauhead.dart';
 import 'package:soleilenquete/widget/user_card.dart';
 
@@ -23,11 +24,11 @@ class _UserListState extends State<UserListPage> {
     Navigator.pushNamedAndRemoveUntil(
         context, '/login', (route) => false); // Redirection vers login
   }
+
   @override
   void initState() {
     super.initState();
-    _user = ProfilService(context)
-        .getUserById(); 
+    _user = ProfilService(context).getUserById();
   }
 
   @override
@@ -38,19 +39,18 @@ class _UserListState extends State<UserListPage> {
         children: [
           // Left side HomePage
           Container(
-            width:
-                MediaQuery.of(context).size.width * 0.2,
-            color: Colors.blue, 
-            child: HomePage(), 
+            width: MediaQuery.of(context).size.width * 0.2,
+            color: Colors.blue,
+            child: HomePage(),
           ),
-       
+
           Expanded(
             child: Column(
               children: [
                 Column(
                   children: [
                     Container(
-                      width: double.infinity, 
+                      width: double.infinity,
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       decoration: BoxDecoration(
@@ -64,122 +64,134 @@ class _UserListState extends State<UserListPage> {
                           ),
                         ],
                       ),
-                      child:  Row(
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 5),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      hintText: "Rechercher un N° d’enquête, Nom, Prénom, ...",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              IconButton(
-                icon:
-                    const Icon(Icons.notifications_none, color: Colors.black54),
-                onPressed: () {},
-              ),
-              const SizedBox(width: 10),
-              FutureBuilder<UserModel>(
-                future: _user,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Erreur : ${snapshot.error}");
-                  } else if (!snapshot.hasData) {
-                    return const Text("Aucun utilisateur");
-                  } else {
-                    final user = snapshot.data!;
-                    return PopupMenuButton<int>(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 1,
-                          child: ListTile(
-                            leading:
-                                const Icon(Icons.person, color: Colors.black54),
-                            title: const Text("Mes informations"),
-                            onTap: () {
-                              Navigator.pop(context); // Fermer le menu
-                              // Naviguer vers la page UserProfil en passant l'ID de l'utilisateur
-                              Navigator.pushNamed(
-                                context,
-                                '/userprofil', // Le nom de la route de la page UserProfil
-                                arguments: user
-                                    .id, // Passez l'ID de l'utilisateur en argument
-                              );
-                            },
-                          ),
-                        ),
-                        const PopupMenuDivider(),
-                        PopupMenuItem(
-                          value: 2,
-                          child: ListTile(
-                            leading:
-                                const Icon(Icons.logout, color: Colors.red),
-                            title: const Text("Se déconnecter"),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _logout(); // Appel de la fonction de déconnexion
-                            },
-                          ),
-                        ),
-                      ],
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: user.photo != null
-                                  ? NetworkImage(user.photo!)
-                                  : const AssetImage("assets/images/user.jpeg")
-                                      as ImageProvider,
-                              radius: 18,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: const TextField(
+                                decoration: InputDecoration(
+                                  hintText:
+                                      "Rechercher un N° d’enquête, Nom, Prénom, ...",
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                  prefixIcon:
+                                      Icon(Icons.search, color: Colors.grey),
+                                  border: InputBorder.none,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("${user.nom} ${user.prenom}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold)),
-                                Text(user.statut ?? "Statut inconnu",
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey)),
-                              ],
-                            ),
-                            const Icon(Icons.arrow_drop_down,
+                          ),
+                          const SizedBox(width: 10),
+                          IconButton(
+                            icon: const Icon(Icons.notifications_none,
                                 color: Colors.black54),
-                          ],
-                        ),
+                            onPressed: () {},
+                          ),
+                          const SizedBox(width: 10),
+                          FutureBuilder<UserModel>(
+                            future: _user,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text("Erreur : ${snapshot.error}");
+                              } else if (!snapshot.hasData) {
+                                return const Text("Aucun utilisateur");
+                              } else {
+                                final user = snapshot.data!;
+                                return PopupMenuButton<int>(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 1,
+                                      child: ListTile(
+                                        leading: const Icon(Icons.person,
+                                            color: Colors.black54),
+                                        title: const Text("Mes informations"),
+                                        onTap: () {
+                                          Navigator.pop(
+                                              context); // Fermer le menu
+                                          // Naviguer vers la page UserProfil en passant l'ID de l'utilisateur
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/userprofil', // Le nom de la route de la page UserProfil
+                                            arguments: user
+                                                .id, // Passez l'ID de l'utilisateur en argument
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const PopupMenuDivider(),
+                                    PopupMenuItem(
+                                      value: 2,
+                                      child: ListTile(
+                                        leading: const Icon(Icons.logout,
+                                            color: Colors.red),
+                                        title: const Text("Se déconnecter"),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          _logout(); // Appel de la fonction de déconnexion
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                  child: Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundImage: user.photo != null
+                                              ? NetworkImage(user.photo!)
+                                              : const AssetImage(
+                                                      "assets/images/user.jpeg")
+                                                  as ImageProvider,
+                                          radius: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text("${user.nom} ${user.prenom}",
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            Text(
+                                                user.statut ?? "Statut inconnu",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey)),
+                                          ],
+                                        ),
+                                        const Icon(Icons.arrow_drop_down,
+                                            color: Colors.black54),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
                     ),
                   ],
                 ),
@@ -187,63 +199,49 @@ class _UserListState extends State<UserListPage> {
                 SizedBox(height: 20),
                 Group228Widget(),
                 Expanded(
-                  child: FutureBuilder<List<UserModel>>(
-                    future: _userService.getAllUsers(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        if (
-                            snapshot.error.toString().contains('403')) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Session Expirée"),
-                                content: Text(
-                                    "Votre session a expiré. Veuillez vous reconnecter."),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/login'); 
-                                      // Rediriger vers la page de connexion si nécessaire
-                                    },
-                                    child: Text("OK"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          });
-                          return SizedBox(); // Retourner un widget vide pour éviter d'afficher la liste
-                        }else if (snapshot.error
-                                .toString()
-                                .contains('Unauthorized')) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Désolé"),
-                                content: Text(
-                                    "Vous n'avez pas accés à cette page"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacementNamed(context, '/login'); 
-                                      // Rediriger vers la page de connexion si nécessaire
-                                    },
-                                    child: Text("OK"),
-                                  ),
-                                ],
-                              ),
-                            );
-                          });
-                          return SizedBox(); // Retourner un widget vide pour éviter d'afficher la liste
-                        }
-                         else {
-                          return Center(
-                            child: Text('Erreur : ${snapshot.error}'),
-                          );
-                        }
+                   child: FutureBuilder<List<UserModel>>(
+    future: _userService.getAllUsers(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        if (snapshot.error.toString().contains('403')) {
+          Future.delayed(Duration.zero, () {
+            showDialog(
+              context: context,
+              builder: (context) => CustomDialog(
+                title: "Session Expirée",
+                content: "Votre session a expiré. Veuillez vous reconnecter.",
+                buttonText: "OK",
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+              ),
+            );
+          });
+
+          return SizedBox(); // Empêche l'affichage de la liste
+        } else if (snapshot.error.toString().contains('Unauthorized')) {
+          Future.delayed(Duration.zero, () {
+            showDialog(
+              context: context,
+              builder: (context) => CustomDialog(
+                title: "Désolé",
+                content: "Vous n'êtes pas autorisé à accéder à cette ressource.",
+                buttonText: "OK",
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+              ),
+            );
+          });
+
+          return SizedBox();
+        } else {
+          return Center(
+            child: Text('Erreur : ${snapshot.error}'),
+          );
+        }
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Center(child: Text('Aucun utilisateur trouvé'));
                       } else {

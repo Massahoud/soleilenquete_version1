@@ -1,9 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/widget/custom_text_field.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ResetPasswordPage extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
+class ResetPasswordPage extends StatefulWidget {
+  @override
+  _ResetPasswordPageState createState() => _ResetPasswordPageState();
+}
 
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
+   final TextEditingController _emailController = TextEditingController();
+  bool _isLoading = false;
+  String? _message;
+
+  Future<void> _requestPasswordReset() async {
+    setState(() {
+      _isLoading = true;
+      _message = null;
+    });
+
+    final String email = _emailController.text.trim();
+   final Uri url = Uri.parse('https://soleilmainapi.vercel.app/api/auth/request-reset-password');
+
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _message = "Un email de réinitialisation a été envoyé.";
+        });
+      } else {
+        setState(() {
+          _message = "Erreur : ${jsonDecode(response.body)['message']}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = "Une erreur s'est produite. Vérifiez votre connexion internet.";
+      });
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,14 +107,16 @@ class ResetPasswordPage extends StatelessWidget {
                       ),
                       SizedBox(height: 16),
                       CustomTextField(
-                        controller: emailController,
+                        controller: _emailController,
                         hintText: "Votre e-mail",
                         labelText: "E-mail",
                       ),
                       SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: _isLoading
+                ? CircularProgressIndicator()
+                :  ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             shape: RoundedRectangleBorder(
@@ -77,15 +124,19 @@ class ResetPasswordPage extends StatelessWidget {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 14),
                           ),
-                          onPressed: () {
-                            
-                          },
+                          onPressed:  _requestPasswordReset,
                           child: Text(
                             "Réinitialiser",
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
+                       if (_message != null)
+              Text(
+                _message!,
+                style: TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
                     ],
                   ),
                 ),

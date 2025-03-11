@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:soleilenquete/views/users/create/sendInvitePage.dart';
+import 'dart:ui'; // Ajout de cet import pour activer le flou
 
 class FiltersUSers extends StatelessWidget {
   @override
@@ -54,23 +56,43 @@ class FiltersUSers extends StatelessWidget {
   }
 
   // Bouton orange "Créer un utilisateur"
-  Widget _buildCreateButton(context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Colors.orange,
-      ),
-      onPressed: () {
-          Navigator.pushReplacementNamed(context, '/signup'); 
-      },
-      child: Row(
-        children: [
-          Icon(Icons.add, color: Colors.white, size: 18),
-          SizedBox(width: 5),
-          Text("Créer un utilisateur", style: TextStyle(color: Colors.white)),
-        ],
-      ),
-    );
-  }
+ Widget _buildCreateButton(BuildContext context) {
+  return ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: Colors.orange,
+    ),
+    onPressed: () {
+      showDialog(
+        context: context,
+        barrierDismissible: true, // Fermer en cliquant en dehors
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent, // Fond invisible
+            child: Stack(
+              children: [
+                // Flou de l'arrière-plan
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Applique un flou
+                  child: Container(color: Colors.black.withOpacity(0.2)), // Assombrit un peu
+                ),
+                // Page de modification
+                Center(child: SendInvitePage()), 
+              ],
+            ),
+          );
+        },
+      );
+    },
+    child: Row(
+      children: [
+        Icon(Icons.add, color: Colors.white, size: 18),
+        SizedBox(width: 5),
+        Text("Créer un utilisateur", style: TextStyle(color: Colors.white)),
+      ],
+    ),
+  );
+}
+
 }

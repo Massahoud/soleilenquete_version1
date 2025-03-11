@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/services/auth_service.dart';
 import 'package:soleilenquete/component/customTextField.dart';
+import 'dart:html' as html;
 
+import 'package:shared_preferences/shared_preferences.dart';
 class LoginForm extends StatefulWidget {
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -18,37 +20,45 @@ class _LoginFormState extends State<LoginForm> {
 
   String _email = '';
   String _motDePasse = '';
-
- void _submitForm() async {
-  if (_formKey.currentState!.validate()) {
-    _formKey.currentState!.save();
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-      _errorMessage = '';
-    });
-
-    try {
-      await _authService.login(_email, _motDePasse);
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } catch (e) {
+ Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
       setState(() {
-        _hasError = true;
-        if (e.toString().contains('Trop de tentatives')) {
-          _errorMessage = 'Trop de tentatives de connexion. Réessayez dans quelques minutes.';
+        _isLoading = true;
+        _hasError = false;
+        _errorMessage = '';
+      });
+
+      try {
+        // Simuler une authentification réussie
+        await Future.delayed(Duration(seconds: 2));
+
+        // Récupérer le token après connexion
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('authToken') ?? 'fakeToken123'; // Simulé pour le test
+
+        if (token.isNotEmpty) {
+         
+          final fullRedirectUrl = 'https://soleil-enquete-react.vercel.app/?token=$token';
+          html.window.location.href = fullRedirectUrl;
         } else {
-          _errorMessage = 'Votre email ou mot de passe est incorrect.';
+          setState(() {
+            _hasError = true;
+            _errorMessage = 'Erreur lors de la récupération du token.';
+          });
         }
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      } catch (e) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'Email ou mot de passe incorrect.';
+        });
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-}
-
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -94,7 +104,7 @@ class _LoginFormState extends State<LoginForm> {
               _motDePasse = value!;
             },
           ),
-          if (_hasError) 
+          if (_hasError)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
@@ -102,34 +112,33 @@ class _LoginFormState extends State<LoginForm> {
                 style: TextStyle(color: Colors.red, fontSize: 14),
               ),
             ),
-         const SizedBox(height: 10),
-Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/signup');
-      },
-      child: const Text(
-        "Créer un compte",
-        style: TextStyle(
-          color: Colors.orange,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-    TextButton(
-      onPressed: () {
-        Navigator.pushNamed(context, '/resetPassword');
-      },
-      child: const Text(
-        'Mot de passe oublié ?',
-        style: TextStyle(color: Colors.orange),
-      ),
-    ),
-  ],
-),
-
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/signup');
+                },
+                child: const Text(
+                  "Créer un compte",
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/resetPassword');
+                },
+                child: const Text(
+                  'Mot de passe oublié ?',
+                  style: TextStyle(color: Colors.orange),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           _isLoading
               ? const CircularProgressIndicator()

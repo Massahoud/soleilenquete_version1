@@ -71,6 +71,46 @@ Future<String?> getUserRole() async {
   }
 }
 
+Future<void> requestPasswordReset(String email) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/reset-password-request'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      print("Email de réinitialisation envoyé avec succès.");
+    } else {
+      throw Exception('Échec de l’envoi de l’email : ${response.statusCode} ${response.body}');
+    }
+  } catch (e) {
+    print('Erreur lors de la demande de réinitialisation : $e');
+    rethrow;
+  }
+}
+
+Future<void> resetPassword(String token, String newPassword) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'token': token,
+        'new_password': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("Mot de passe réinitialisé avec succès.");
+    } else {
+      throw Exception('Échec de la réinitialisation : ${response.statusCode} ${response.body}');
+    }
+  } catch (e) {
+    print('Erreur lors de la réinitialisation du mot de passe : $e');
+    rethrow;
+  }
+}
 
   Future<UserModel> getUserById(String id) async {
     final authToken = await getAuthToken();

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:soleilenquete/component/filtre/filtreEnquete.dart';
-
-import 'package:soleilenquete/component/search_bar.dart';
-import 'package:soleilenquete/services/enquete_service.dart';
-import 'package:soleilenquete/views/HomePage.dart';
-import 'package:soleilenquete/views/enquete/enquete_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleilenquete/widget/customDialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 class DashboardRedirectPage extends StatefulWidget {
   @override
   _DashboardRedirectPageState createState() => _DashboardRedirectPageState();
@@ -31,19 +27,33 @@ class _DashboardRedirectPageState extends State<DashboardRedirectPage> {
         print("Impossible d'ouvrir l'URL");
       }
     } else {
-      print("Token non trouvé");
+     showSessionExpiredDialog( context);
     }
   }
 
+void showSessionExpiredDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => CustomDialog(
+      title: "Session Expirée",
+      content: "Votre session a expiré. Veuillez vous reconnecter.",
+      buttonText: "OK",
+      onPressed: () {
+        Navigator.pushReplacementNamed(context, '/login');
+      },
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: CircularProgressIndicator(), // Affiche un loader pendant la redirection
+        child: CircularProgressIndicator(), // Loader en attendant la redirection
       ),
     );
   }
 }
+
 /*
 class EnqueteListePage extends StatefulWidget {
   const EnqueteListePage({Key? key}) : super(key: key);
