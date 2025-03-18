@@ -1,6 +1,6 @@
 {
-    "name": "soleilenquete",
-    "short_name": "soleilenquete",
+    "name": "Enquete Soleil",
+    "short_name": "Enquete Soleil",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

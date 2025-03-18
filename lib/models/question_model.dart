@@ -1,19 +1,19 @@
 class Question {
-  final String? id; // L'ID peut être null au départ
-  final int numero; // Le numéro est un entier
-  final String question_text; // Le texte de la question
-  final String? commentaire; // Commentaire optionnel
-  final String type; // Type obligatoire
+  final String? id; 
+  final String numero; 
+  final String question_text;
+  final String? commentaire; 
+  final String type; 
 
   Question({
-    this.id, // ID est optionnel
+    this.id, 
     required this.numero,
     required this.question_text,
     this.commentaire,
     required this.type,
   });
 
-  // Méthode pour créer une nouvelle instance avec une question mise à jour
+  
   Question copyWith({String? newQuestion, String? newCommentaire}) {
     return Question(
       id: this.id,
@@ -24,21 +24,21 @@ class Question {
     );
   }
 
-  // Méthode pour convertir une instance JSON en Question
+ 
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
-      id: json['id'], // L'ID est une chaîne ou null
-      numero: int.tryParse(json['numero']?.toString() ?? '0') ?? 0, // Conversion sécurisée en entier
-      question_text: json['question_text'] ?? '', // Défaut à chaîne vide
-      commentaire: json['commentaire'], // Peut être null
-      type: json['type'] ?? '', // Défaut à chaîne vide
+      id: json['id'], 
+      numero: json['numero']?.toString() ?? '', 
+      question_text: json['question_text'] ?? '', 
+      commentaire: json['commentaire'], 
+      type: json['type'] ?? '',
     );
   }
 
-  // Méthode pour convertir une instance de Question en JSON
+  
   Map<String, dynamic> toJson() {
     return {
-      'id': id, // Peut être null
+      'id': id, 
       'numero': numero,
       'question_text': question_text,
       'commentaire': commentaire,

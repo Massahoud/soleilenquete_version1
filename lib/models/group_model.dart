@@ -4,7 +4,7 @@ class GroupModel {
   final String nom;
   final String description;
   final String date_creation;
-  final List<String> membres; // Gardez les membres comme une List<String> (identifiants des utilisateurs)
+  final List<String> membres;
 
   GroupModel({
     required this.id,
@@ -14,14 +14,14 @@ class GroupModel {
     required this.membres,
   });
 
-  // Méthodes de sérialisation/désérialisation
+ 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(
       id: json['id'],
       nom: json['nom'],
       description: json['description'],
       date_creation: json['date_creation'],
-      membres: List<String>.from(json['membres']),  // Garder comme une liste de String
+      membres: List<String>.from(json['membres']),  
     );
   }
 
@@ -31,7 +31,7 @@ class GroupModel {
       'nom': nom,
       'description': description,
       'date_creation': date_creation,
-      'membres': membres,  // Garder comme une liste de String
+      'membres': membres,  
     };
   }
 
