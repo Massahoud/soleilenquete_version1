@@ -8,17 +8,17 @@ class AuthService {
   
   Future<void> sendInvite(String email, String role) async {
     try {
-      print("[INFO] Envoi de la requête au serveur...");
+      
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'role': role}),
+        body: json.encode({'email': email, 'statut': role}),
       );
 
-      print("[INFO] Réponse reçue du serveur. Code: \${response.statusCode}");
+      
 
       if (response.statusCode == 200) {
-        print("[SUCCESS] Email envoyé avec succès !");
+        
         
    
         final responseData = json.decode(response.body);
@@ -26,11 +26,11 @@ class AuthService {
           await setAuthToken(responseData['token']);
         }
       } else {
-        print("[ERREUR] Réponse du serveur: \${response.body}");
+       
         throw Exception("Erreur lors de l'envoi de l'email: \${response.body}");
       }
     } catch (error) {
-      print("[EXCEPTION] Une erreur s'est produite: \$error");
+     
       throw Exception("Erreur lors de l'envoi de l'email: \$error");
     }
   }

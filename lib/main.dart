@@ -4,6 +4,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:soleilenquete/views/auth/password/resetPassword.dart';
+import 'package:soleilenquete/views/auth/redirect_Page.dart';
 import 'package:soleilenquete/views/users/create/SignUpPage.dart';
 import 'package:soleilenquete/views/users/create/sendInvitePage.dart';
 import 'package:soleilenquete/views/question/question_liste.dart';
@@ -23,6 +24,7 @@ import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/views/enquete/SurveyPage.dart';
 import 'package:soleilenquete/views/auth/password/reset_pasword_form.dart';
+import 'package:soleilenquete/widget/navigation_widget.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -64,7 +66,8 @@ class MyApp extends StatelessWidget {
         '/question/create': (context) => CreateQuestionPage(),
         '/userprofil': (context) => UserProfil(),
         '/resetPassword': (context) => ResetPasswordPage(),
-      },
+         '/redirect': (context) => RedirectPage(redirectUrl: ''),
+         '/miseajour':(context)  => UpdateEtatPage(),},
       onGenerateRoute: (settings) {
         
   

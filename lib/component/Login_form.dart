@@ -4,6 +4,8 @@ import 'package:soleilenquete/component/customTextField.dart';
 import 'dart:html' as html;
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleilenquete/views/auth/redirect_Page.dart';
+
 class LoginForm extends StatefulWidget {
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -17,48 +19,70 @@ class _LoginFormState extends State<LoginForm> {
   bool _isLoading = false;
   bool _hasError = false;
   String _errorMessage = '';
-
   String _email = '';
   String _motDePasse = '';
- Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      setState(() {
-        _isLoading = true;
-        _hasError = false;
-        _errorMessage = '';
-      });
 
+  String? _getRedirectUrl() {
+    Uri uri = Uri.parse(html.window.location.href);
+    String? redirect = uri.queryParameters['redirect'];
+
+    if (redirect != null && redirect.isNotEmpty) {
       try {
-        // Simuler une authentification réussie
-        await Future.delayed(Duration(seconds: 2));
-
-        // Récupérer le token après connexion
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString('authToken') ?? 'fakeToken123'; // Simulé pour le test
-
-        if (token.isNotEmpty) {
-         
-          final fullRedirectUrl = 'https://soleil-enquete-react.vercel.app/?token=$token';
-          html.window.location.href = fullRedirectUrl;
-        } else {
-          setState(() {
-            _hasError = true;
-            _errorMessage = 'Erreur lors de la récupération du token.';
-          });
-        }
+        // Décodage double pour s'assurer que l'URL est bien interprétée
+        String decodedUrl = Uri.decodeFull(Uri.decodeFull(redirect));
+        print("URL de redirection : $decodedUrl");
+        return decodedUrl;
       } catch (e) {
-        setState(() {
-          _hasError = true;
-          _errorMessage = 'Email ou mot de passe incorrect.';
-        });
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        print("Erreur lors du décodage de l'URL de redirection : $redirect");
+        return null;
       }
     }
+    return null;
   }
+Future<void> _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = '';
+    });
+
+    try {
+      bool loginSuccess = await _authService.login(_email, _motDePasse);
+
+      if (loginSuccess) {
+        // Attendre que le token soit enregistré
+        final prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('authToken');
+        print("Token après connexion: $token"); // Vérifie ici si le token est valide
+
+        String? redirectUrl = _getRedirectUrl();
+
+        if (redirectUrl != null && redirectUrl.isNotEmpty) {
+          print("Redirection vers: $redirectUrl");
+          Navigator.pushReplacementNamed(
+    context,
+    '/redirect',
+    arguments: redirectUrl, // Passer l'URL de redirection comme argument
+  );
+        } else {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = 'Email ou mot de passe incorrect.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Form(

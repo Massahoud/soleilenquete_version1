@@ -1,7 +1,7 @@
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleilenquete/widget/customDialog.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DashboardRedirectPage extends StatefulWidget {
   @override
@@ -15,44 +15,46 @@ class _DashboardRedirectPageState extends State<DashboardRedirectPage> {
     _redirectToReact();
   }
 
+ 
   Future<void> _redirectToReact() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('authToken');
+    String? userId = prefs.getString('userId'); // Récupération du userId
 
-    if (token != null) {
-      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token";
-      if (await canLaunch(reactUrl)) {
-        await launch(reactUrl, forceWebView: false);
-      } else {
-        print("Impossible d'ouvrir l'URL");
-      }
+    if (token != null && userId != null) {
+      final reactUrl = "http://localhost:5173/?token=$token";
+      print(reactUrl);
+      html.window.location.href = reactUrl;
     } else {
-     showSessionExpiredDialog( context);
+      Future.delayed(Duration.zero, () { 
+        _showSessionExpiredDialog();
+      });
     }
   }
-
-void showSessionExpiredDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => CustomDialog(
-      title: "Session Expirée",
-      content: "Votre session a expiré. Veuillez vous reconnecter.",
-      buttonText: "OK",
-      onPressed: () {
-        Navigator.pushReplacementNamed(context, '/login');
-      },
-    ),
-  );
-}
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(), // Loader en attendant la redirection
+  void _showSessionExpiredDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CustomDialog(
+        title: "Session expirée",
+        content: "Votre session a expiré. Veuillez vous reconnecter.",
+        buttonText: "OK",
+        onPressed: () {
+          Navigator.pop(context); // Fermer le dialogue
+          Navigator.pushReplacementNamed(context, '/login'); // Rediriger
+        },
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
 }
+
 
 /*
 class EnqueteListePage extends StatefulWidget {

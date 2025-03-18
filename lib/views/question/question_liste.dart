@@ -68,7 +68,6 @@ class _QuestionPageState extends State<QuestionsPage> {
   }
 }
 
-// Méthode pour afficher le dialogue d'erreur de rôle
 
 void showRoleErrorDialog(BuildContext context) {
   showDialog(
@@ -83,8 +82,9 @@ void showRoleErrorDialog(BuildContext context) {
     ),
   );
 }
-
 void showSessionExpiredDialog(BuildContext context) {
+  String currentUrl = ModalRoute.of(context)?.settings.name ?? '/';
+
   showDialog(
     context: context,
     builder: (context) => CustomDialog(
@@ -92,11 +92,16 @@ void showSessionExpiredDialog(BuildContext context) {
       content: "Votre session a expiré. Veuillez vous reconnecter.",
       buttonText: "OK",
       onPressed: () {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(
+          context,
+          '/login',
+          arguments: {'redirect': currentUrl}, // Passer la page actuelle en paramètre
+        );
       },
     ),
   );
 }
+
 
 
   @override

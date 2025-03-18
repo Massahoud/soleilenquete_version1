@@ -26,7 +26,7 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
   bool _isLoading = false;
   html.File? _imageFile;
   Uint8List? _imageBytes;
-
+String _uid= "";
   String _nom = '';
   String _prenom = '';
   String _motDePasse = '';
@@ -41,28 +41,29 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
     super.initState();
     _decodeToken();
   }
-
 void _decodeToken() {
   try {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
     print("Contenu du token: $decodedToken"); // Vérifie la structure
 
-    // Accéder aux valeurs dans "claims"
-    Map<String, dynamic>? claims = decodedToken['claims'];
-    if (claims != null) {
-      setState(() {
-        _email = claims['email'] ?? 'Email non trouvé';
-        _statut = claims['role'] ?? 'Role non trouvé';
-      });
-    } else {
-      setState(() {
-        _email = 'Email non trouvé';
-        _statut = 'Role non trouvé';
-      });
-    }
+    setState(() {
+      // Récupérer l'UID depuis le champ "sub"
+      _uid = decodedToken['sub'] ?? 'UID non trouvé';
+      _email = decodedToken['email'] ?? 'Email non trouvé';
 
+      // Accéder aux valeurs dans "claims"
+      Map<String, dynamic>? claims = decodedToken['claims'];
+      if (claims != null) {
+        _statut = claims['statut'] ?? 'Statut non trouvé';
+      } else {
+        _statut = 'Statut non trouvé';
+      }
+    });
+
+    print("UID: $_uid");
     print("Email: $_email");
-    print("Role: $_statut");
+    print("Statut: $_statut");
+
   } catch (e) {
     print("Erreur lors du décodage du token: $e");
     setState(() {
@@ -73,36 +74,42 @@ void _decodeToken() {
 
 
 
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+ void _submitForm() async {
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final updatedUser = UserModel(
+        id: _uid, // Utilisation de l'UID récupéré du token
+        nom: _nom,
+        prenom: _prenom,
+        email: _email,
+        motDePasse: _motDePasse,
+        telephone: _telephone,
+        statut: _statut,
+        groupe: _groupe,
+        photo: '',
+      );
+
+      await _userService.updateUser(_uid, updatedUser, _imageFile);
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Utilisateur mis à jour avec succès')));
+      Navigator.pushReplacementNamed(context, '/login');
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Échec de la mise à jour : ${e.toString()}')));
+    } finally {
       setState(() {
-        _isLoading = true;
+        _isLoading = false;
       });
-      try {
-        final newUser = UserModel(
-          id: '',
-          nom: _nom,
-          prenom: _prenom,
-          email: _email,
-          motDePasse: _motDePasse,
-          telephone: _telephone,
-          statut: _statut,
-          groupe: _groupe,
-          photo: '',
-        );
-        await _userService.createUser(newUser, _imageFile);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Utilisateur créé avec succès')));
-        Navigator.pushReplacementNamed(context, '/login');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Échec de l’inscription : ${e.toString()}')));
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
+}
+
 
   Future<void> _pickImage() async {
     html.FileUploadInputElement uploadInput = html.FileUploadInputElement();

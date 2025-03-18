@@ -199,49 +199,55 @@ class _UserListState extends State<UserListPage> {
                 SizedBox(height: 20),
                 Group228Widget(),
                 Expanded(
-                   child: FutureBuilder<List<UserModel>>(
-    future: _userService.getAllUsers(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        if (snapshot.error.toString().contains('403')) {
-          Future.delayed(Duration.zero, () {
-            showDialog(
-              context: context,
-              builder: (context) => CustomDialog(
-                title: "Session Expirée",
-                content: "Votre session a expiré. Veuillez vous reconnecter.",
-                buttonText: "OK",
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-              ),
-            );
-          });
+                  child: FutureBuilder<List<UserModel>>(
+                    future: _userService.getAllUsers(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        if (snapshot.error.toString().contains('403')) {
+                          Future.delayed(Duration.zero, () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => CustomDialog(
+                                title: "Session Expirée",
+                                content:
+                                    "Votre session a expiré. Veuillez vous reconnecter.",
+                                buttonText: "OK",
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/login');
+                                },
+                              ),
+                            );
+                          });
 
-          return SizedBox(); // Empêche l'affichage de la liste
-        } else if (snapshot.error.toString().contains('Unauthorized')) {
-          Future.delayed(Duration.zero, () {
-            showDialog(
-              context: context,
-              builder: (context) => CustomDialog(
-                title: "Désolé",
-                content: "Vous n'êtes pas autorisé à accéder à cette ressource.",
-                buttonText: "OK",
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-              ),
-            );
-          });
+                          return SizedBox(); // Empêche l'affichage de la liste
+                        } else if (snapshot.error
+                            .toString()
+                            .contains('Unauthorized')) {
+                          Future.delayed(Duration.zero, () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => CustomDialog(
+                                title: "Désolé",
+                                content:
+                                    "Vous n'êtes pas autorisé à accéder à cette ressource.",
+                                buttonText: "OK",
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/login');
+                                },
+                              ),
+                            );
+                          });
 
-          return SizedBox();
-        } else {
-          return Center(
-            child: Text('Erreur : ${snapshot.error}'),
-          );
-        }
+                          return SizedBox();
+                        } else {
+                          return Center(
+                            child: Text('Erreur : ${snapshot.error}'),
+                          );
+                        }
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Center(child: Text('Aucun utilisateur trouvé'));
                       } else {

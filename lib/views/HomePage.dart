@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
       _buildNavItem(context, 'Formulaires', '/question', Icons.app_registration),
       _buildNavItem(context, 'Nuage de point', '/nuageDePoint', Icons.scatter_plot),
       _buildNavItem(context, 'Faire une enquête', '/createSurvey', Icons.assignment),
+       _buildNavItem(context, 'mise', '/miseajour', Icons.assignment),
     ];
 
     if (userRole == 'admin' || userRole == 'superadmin') {

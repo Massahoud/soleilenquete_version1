@@ -1,66 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class SideNavigationBar extends StatelessWidget {
-  const SideNavigationBar({Key? key}) : super(key: key);
+class UpdateEtatPage extends StatefulWidget {
+  @override
+  _UpdateEtatPageState createState() => _UpdateEtatPageState();
+}
+
+class _UpdateEtatPageState extends State<UpdateEtatPage> {
+  bool isUpdating = false;
+  String statusMessage = "";
+
+  Future<void> updateEnqueteEtat() async {
+    setState(() {
+      isUpdating = true;
+      statusMessage = "Mise à jour en cours...";
+    });
+
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    QuerySnapshot snapshot = await firestore.collection('enquete').get();
+
+    for (var doc in snapshot.docs) {
+      var data = doc.data() as Map<String, dynamic>?;
+
+      if (data != null && data.containsKey('date_heure_debut')) {
+        Timestamp timestamp = data['date_heure_debut'];
+        DateTime date = timestamp.toDate();
+        int year = date.year;
+
+        String etat;
+        if (year >= 2021 && year <= 2023) {
+          etat = "Clôturé";
+        } else if (year == 2024) {
+          etat = "En cours";
+        } else {
+          etat = "Nouveau";
+        }
+
+        await doc.reference.update({'etat': etat});
+      }
+    }
+
+    setState(() {
+      isUpdating = false;
+      statusMessage = "Mise à jour terminée ✅";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    return Container(
-      width: screenWidth * 0.15, // 15% de l'écran
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          // Logo
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                Image.asset(
-                  'assets/images/téléchargement.jpeg', // Assure-toi d'ajouter ton logo dans assets
-                  width: 80,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "le Soleil\ndans la Main • ONG",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(title: Text("Mettre à jour l'état des enquêtes")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: isUpdating ? null : updateEnqueteEtat,
+              child: Text(isUpdating ? "Mise à jour..." : "Mettre à jour"),
             ),
-          ),
-          const SizedBox(height: 40),
-
-          // Menu Items
-          _buildMenuItem(Icons.assignment, "Mes enquêtes", isActive: true),
-          _buildMenuItem(Icons.scatter_plot, "Nuage de points"),
-          _buildMenuItem(Icons.list, "Formulaires"),
-          _buildMenuItem(Icons.people, "Utilisateurs"),
-          _buildMenuItem(Icons.groups, "Groupes d’utilisateurs"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(IconData icon, String title, {bool isActive = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-      child: Row(
-        children: [
-          Icon(icon, color: isActive ? Colors.orange : Colors.grey),
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: isActive ? Colors.orange : Colors.black54,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
+            SizedBox(height: 20),
+            Text(statusMessage, style: TextStyle(fontSize: 16)),
+          ],
+        ),
       ),
     );
   }
