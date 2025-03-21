@@ -19,12 +19,10 @@ class _SendInvitePageState extends State<SendInvitePage> {
     String email = _emailController.text.trim();
     String? role = selectedRole;
 
-    print("[INFO] Bouton 'Envoyer l'invitation' pressé.");
-    print("[INFO] Email saisi : $email");
-    print("[INFO] Rôle saisi : $role");
+    
 
     if (email.isEmpty || role == null) {
-      print("[ERREUR] Email ou rôle vide !");
+     
       
       setState(() {
         _hasError = true;
@@ -41,11 +39,11 @@ class _SendInvitePageState extends State<SendInvitePage> {
     });
 
     try { 
-      print("[INFO] Envoi de la requête d'invitation...");
+      
 
       await _authService.sendInvite(email, role);
 
-      print("[SUCCESS] Email envoyé avec succès !");
+    
 
       // Fermer la page actuelle
       Navigator.pop(context);
@@ -59,8 +57,8 @@ class _SendInvitePageState extends State<SendInvitePage> {
               Text("L'utilisateur a été créé.", style: TextStyle(color: Colors.white)),
               GestureDetector(
                 onTap: () {
-                  print("[INFO] Redirection vers l'enquête...");
-                  // Ajoutez ici la navigation vers la page de l'enquête
+                 
+                  
                 },
                 child: Text("VOIR", style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
               ),
@@ -72,7 +70,7 @@ class _SendInvitePageState extends State<SendInvitePage> {
       );
 
     } catch (e) {
-      print("[ERREUR] Échec de l'envoi de l'invitation: $e");
+      
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur: $e")),

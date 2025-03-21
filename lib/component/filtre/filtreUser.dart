@@ -3,6 +3,10 @@ import 'package:soleilenquete/views/users/create/sendInvitePage.dart';
 import 'dart:ui'; // Ajout de cet import pour activer le flou
 
 class FiltersUSers extends StatelessWidget {
+   final int userCount;
+
+  FiltersUSers({required this.userCount});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,7 +16,7 @@ class FiltersUSers extends StatelessWidget {
         children: [
           // Texte "86 utilisateurs"
           Text(
-            "86 utilisateurs",
+            "$userCount utilisateurs",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

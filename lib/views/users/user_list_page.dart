@@ -17,6 +17,9 @@ class UserListPage extends StatefulWidget {
 class _UserListState extends State<UserListPage> {
   final UserService _userService = UserService();
   late Future<UserModel> _user;
+  List<UserModel> _allUsers = []; // Liste complète des utilisateurs
+List<UserModel> _filteredUsers = [];
+  TextEditingController _searchController = TextEditingController();
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
@@ -29,7 +32,33 @@ class _UserListState extends State<UserListPage> {
   void initState() {
     super.initState();
     _user = ProfilService(context).getUserById();
+      _loadUsers();
+    _searchController.addListener(() {
+  _filterUsers();
+  setState(() {}); // Force la mise à jour de l'affichage
+});
+
   }
+ 
+
+Future<void> _loadUsers() async {
+  final users = await _userService.getAllUsers();
+  setState(() {
+    _allUsers = users; // Stocke tous les utilisateurs
+    _filteredUsers = List.from(_allUsers); // Copie initiale
+  });
+}
+
+void _filterUsers() {
+  final query = _searchController.text.toLowerCase();
+  setState(() {
+    _filteredUsers = _allUsers.where((user) { // Filtrer depuis _allUsers
+      return user.numero.toString().contains(query) ||
+          user.nom.toLowerCase().contains(query) ||
+          user.prenom.toLowerCase().contains(query);
+    }).toList();
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +106,8 @@ class _UserListState extends State<UserListPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(color: Colors.grey.shade300),
                               ),
-                              child: const TextField(
+                              child: TextField(
+                                controller: _searchController,
                                 decoration: InputDecoration(
                                   hintText:
                                       "Rechercher un N° d’enquête, Nom, Prénom, ...",
@@ -195,7 +225,8 @@ class _UserListState extends State<UserListPage> {
                     ),
                   ],
                 ),
-                FiltersUSers(),
+              FiltersUSers(userCount: _allUsers.length),
+
                 SizedBox(height: 20),
                 Group228Widget(),
                 Expanded(
@@ -253,9 +284,10 @@ class _UserListState extends State<UserListPage> {
                       } else {
                         final users = snapshot.data!;
                         return ListView.builder(
-                          itemCount: users.length,
+                      itemCount: _filteredUsers.length,
                           itemBuilder: (context, index) {
-                            final user = users[index];
+                        
+                                final user = _filteredUsers[index];
                             return Padding(
                               padding: const EdgeInsets.all(0),
                               child: Group44Widget(user: user),

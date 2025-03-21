@@ -66,7 +66,10 @@ class MyApp extends StatelessWidget {
         '/question/create': (context) => CreateQuestionPage(),
         '/userprofil': (context) => UserProfil(),
         '/resetPassword': (context) => ResetPasswordPage(),
-         '/redirect': (context) => RedirectPage(redirectUrl: ''),
+      '/redirect': (context) => RedirectPage(
+  redirectUrl: ModalRoute.of(context)!.settings.arguments as String,
+),
+
          '/miseajour':(context)  => UpdateEtatPage(),},
       onGenerateRoute: (settings) {
         

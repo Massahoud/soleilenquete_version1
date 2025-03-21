@@ -51,7 +51,7 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
     String? token = prefs.getString('authToken');
 
     if (token != null) {
-      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token/plus/$pointId"; 
+      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token|plus|$pointId"; 
       if (await canLaunch(reactUrl)) {
         await launch(reactUrl, forceWebView: false);
       } else {

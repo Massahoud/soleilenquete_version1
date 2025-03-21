@@ -101,6 +101,7 @@ class SurveyService {
 
     if (response.statusCode == 200) {
       print("Réponses envoyées avec succès !");
+      await sendSurveyIdToApi(surveyId);
     } else {
       print("Erreur lors de l'envoi des réponses: ${response.body}");
     }
@@ -109,7 +110,30 @@ class SurveyService {
   }
 }
 
+Future<void> sendSurveyIdToApi(String surveyId) async {
+  final url = Uri.parse('$baseUrl/calcul/$surveyId');
+  final authToken = await getAuthToken();
 
+  final headers = {
+    'Content-Type': 'application/json',
+    if (authToken != null) 'Authorization': 'Bearer $authToken',
+  };
+
+  try {
+    final response = await http.get(
+      url,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      print("ID envoyé avec succès !");
+    } else {
+      print("Erreur lors de l'envoi de l'ID : ${response.body}");
+    }
+  } catch (e) {
+    print("Erreur de connexion : $e");
+  }
+}
 
 
 Future<String?> createSurvey(SurveyModel survey, html.File? imageFile) async {

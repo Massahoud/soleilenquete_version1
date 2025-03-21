@@ -22,7 +22,7 @@ class _DashboardRedirectPageState extends State<DashboardRedirectPage> {
     String? userId = prefs.getString('userId'); // Récupération du userId
 
     if (token != null && userId != null) {
-      final reactUrl = "http://localhost:5173/?token=$token";
+      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token";
       print(reactUrl);
       html.window.location.href = reactUrl;
     } else {

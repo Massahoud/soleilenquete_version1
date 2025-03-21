@@ -39,7 +39,7 @@ class _SurveyPageState extends State<SurveyPage> {
           _tempSurvey = args;
         });
 
-        print("Données récupérées : ${_tempSurvey.toString()}");
+      
       }
     });
 
@@ -239,7 +239,7 @@ class _SurveyPageState extends State<SurveyPage> {
     try {
       String? surveyId = await sendSurveyData(newSurvey);
       if (surveyId == null) throw Exception("L'ID de l'enquête est null.");
-      print("Données de l'enquête envoyées avec succès. ID: $surveyId");
+     
 
       await _sendAnswersToApi(surveyId);
       print("Réponses envoyées avec succès.");

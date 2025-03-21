@@ -56,7 +56,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   ),
                   child: const TextField(
                     decoration: InputDecoration(
-                      hintText: "Rechercher un N° d’enquête, Nom, Prénom, ...",
+                      hintText: "Rechercher un Numero et par question ...",
                       hintStyle: TextStyle(color: Colors.grey),
                       prefixIcon: Icon(Icons.search, color: Colors.grey),
                       border: InputBorder.none,
@@ -162,7 +162,4 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       ],
     );
   }
-
-
-  
 }

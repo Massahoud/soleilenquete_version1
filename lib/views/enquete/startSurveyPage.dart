@@ -298,8 +298,10 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
       ),
       body: SingleChildScrollView(
         child: Center(
+           child: Container(
+      width: MediaQuery.of(context).size.width * 0.5,
           child: Card(
-            margin: EdgeInsets.all(10),
+            margin: EdgeInsets.all(30),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -535,7 +537,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
               ),
             ),
           ),
-        ),
+        ),)
       ),
     );
   }
