@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/component/customTextField.dart';
 import 'dart:html' as html;
-import 'dart:typed_data';
-import 'dart:convert';
+
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/models/user_model.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupWithInvitePage extends StatefulWidget {
   final String token;
@@ -33,21 +33,31 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
   String _statut = '';
   String _email = '';
   String _groupe = 'accord_cadre';
-  String? _errorMessage;
-
+  String _errorMessage = '';
+  bool _hasError = false;
   @override
   void initState() {
     super.initState();
     _decodeToken();
   }
 
-  void _decodeToken() {
+  Future<void> _decodeToken() async {
     try {
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(widget.token);
-      print("Contenu du token: $decodedToken"); // Vérifie la structure
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('authToken');
+
+      if (token == null || token.isEmpty) {
+        setState(() {
+          _errorMessage = "Aucun token trouvé.";
+        });
+        print("Aucun token trouvé.");
+        return;
+      }
+
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      print("Contenu du token: $decodedToken");
 
       setState(() {
-        // Récupérer directement les valeurs
         _statut = decodedToken['statut'] ?? 'Statut non trouvé';
         _email = decodedToken['email'] ?? 'Email non trouvé';
       });
@@ -67,7 +77,10 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
       _formKey.currentState!.save();
       setState(() {
         _isLoading = true;
+        _hasError = false;
+        _errorMessage = '';
       });
+
       try {
         final newUser = UserModel(
           id: '',
@@ -80,13 +93,19 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
           groupe: _groupe,
           photo: '',
         );
+
         await _userService.createUser(newUser, _imageFile);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('User created successfully')));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Utilisateur créé avec succès !')),
+        );
         Navigator.pushReplacementNamed(context, '/login');
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to create user: ${e.toString()}')));
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _isLoading = false;
+        });
       } finally {
         setState(() {
           _isLoading = false;
@@ -197,8 +216,8 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
                                         controller: telephoneController,
                                         labelText: 'Téléphone',
                                         hintText: 'Votre numéro de téléphone',
-                                        validator: (value) => value!.isEmpty
-                                            ? 'Entrez votre téléphone'
+                                        validator: (value) => value!.length < 8
+                                            ? 'Entrez numero de téléphone valide'
                                             : null,
                                         onSaved: (value) => _telephone = value!,
                                       ),
@@ -213,6 +232,17 @@ class _SignupWithInvitePageState extends State<SignupWithInvitePage> {
                                         onSaved: (value) =>
                                             _motDePasse = value!,
                                       ),
+                                      if (_hasError)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            _errorMessage,
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 14),
+                                          ),
+                                        ),
                                       SizedBox(height: 20),
                                       _isLoading
                                           ? CircularProgressIndicator()

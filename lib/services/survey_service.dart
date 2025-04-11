@@ -111,7 +111,7 @@ class SurveyService {
 }
 
 Future<void> sendSurveyIdToApi(String surveyId) async {
-  final url = Uri.parse('$baseUrl/calcul/$surveyId');
+  final url = Uri.parse('$baseUrl/calculenquete/$surveyId');
   final authToken = await getAuthToken();
 
   final headers = {

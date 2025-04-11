@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:soleilenquete/component/customTextField.dart';
-
+ import 'package:shared_preferences/shared_preferences.dart';
 class ResetPasswordForm extends StatefulWidget {
   final String token;
   ResetPasswordForm({required this.token});
@@ -17,51 +17,70 @@ class _ResetPasswordFormState extends State<ResetPasswordForm> {
   bool _isLoading = false;
   String? _message;
 bool _hasError = false;
-  Future<void> _resetPassword() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _message = "Les mots de passe ne correspondent pas.";
-      });
-      return;
-    }
 
+Future<void> _resetPassword() async {
+  if (_passwordController.text != _confirmPasswordController.text) {
     setState(() {
-      _isLoading = true;
-      _message = null;
+      _message = "Les mots de passe ne correspondent pas.";
     });
+    return;
+  }
 
-    final Uri url = Uri.parse('https://soleilmainapi.vercel.app/api/auth/reset-password');
+  setState(() {
+    _isLoading = true;
+    _message = null;
+  });
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'token': widget.token,
-          'newPassword': _passwordController.text,
-        }),
-      );
+  // 🔹 Récupérer le token depuis LocalStorage
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? token = prefs.getString('authToken'); // Assurez-vous que le token est enregistré sous 'authToken'
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _message = "Mot de passe réinitialisé avec succès.";
-        });
-      } else {
-        setState(() {
-          _message = "Erreur : ${jsonDecode(response.body)['message']}";
-        });
-      }
-    } catch (e) {
+  if (token == null || token.isEmpty) {
+    setState(() {
+      _message = "Token introuvable. Veuillez recommencer.";
+      _isLoading = false;
+    });
+    return;
+  }
+
+  print("Token envoyé : $token");
+
+  final Uri url = Uri.parse('https://api.enquetesoleil.com/api/auth/reset-password');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'token': token, // Utilise le token récupéré de localStorage
+        'newPassword': _passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
       setState(() {
-        _message = "Une erreur s'est produite. Vérifiez votre connexion internet.";
+        _message = "Mot de passe réinitialisé avec succès.";
+      });
+
+ 
+      Future.delayed(Duration(seconds: 2), () {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+    } else {
+      setState(() {
+        _message = "Erreur : ${jsonDecode(response.body)['message']}";
       });
     }
-
+  } catch (e) {
     setState(() {
-      _isLoading = false;
+      _message = "Une erreur s'est produite. Vérifiez votre connexion internet.";
     });
   }
 
+  setState(() {
+    _isLoading = false;
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

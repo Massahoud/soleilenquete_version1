@@ -41,7 +41,7 @@ class Group44Widget extends StatelessWidget {
             backgroundColor: Colors.white,
             backgroundImage: user.photo != null && user.photo!.isNotEmpty
                 ? NetworkImage(user.photo!)
-                : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                : const AssetImage('assets/images/users.jpeg') as ImageProvider,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -95,35 +95,29 @@ class Group44Widget extends StatelessWidget {
 
 
 void _showUpdateUserDialog(BuildContext context, UserModel user) {
-  showDialog(
+  showGeneralDialog(
     context: context,
-    barrierDismissible: false, // Empêche de fermer la boîte de dialogue en dehors
-    builder: (context) {
-      return Stack(
-        children: [
-          // Arrière-plan flouté
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: Container(
-              color: Colors.black.withOpacity(0.5), // Ombre subtile
-            ),
-          ),
-          // Boîte de dialogue positionnée à gauche avec une taille définie
-          Positioned(
-            right: 0, // Position à gauche avec un écart de 20 pixels
-            top: 0, // Un peu de marge du haut
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.4, // 30% de la largeur de l'écran
-              height: MediaQuery.of(context).size.height , // 70% de la hauteur de l'écran
-              child: Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: UpdateUserPage(user: user),
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.5), // Ombre en arrière-plan
+    transitionDuration: Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Align(
+        alignment: Alignment.centerRight, // Colle le dialogue à droite
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.4, // 40% de la largeur
+            height: MediaQuery.of(context).size.height, // Prend toute la hauteur
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
               ),
             ),
+            child: UpdateUserPage(user: user),
           ),
-        ],
+        ),
       );
     },
   );

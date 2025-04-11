@@ -14,20 +14,9 @@ class UserService {
 
 
 Future<String?> getUserRole() async {
-  final authToken = await getAuthToken();
-  if (authToken == null) {
-    return null;
-  }
-  
-  try {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(authToken);
-    return decodedToken['role']; 
-  } catch (e) {
-    print('Error decoding token: $e');
-    return null;
-  }
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userRole'); // Récupère directement le rôle stocké
 }
-
   Future<String?> getAuthToken() async {
   final prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString('authToken');
@@ -40,15 +29,15 @@ Future<String?> getUserRole() async {
     await prefs.setString('authToken', token);
   }
 
- Future<List<UserModel>> getAllUsers() async {
+Future<List<UserModel>> getAllUsers() async {
   final authToken = await getAuthToken();
   if (authToken == null) {
     throw Exception('No auth token found');
   }
 
   final role = await getUserRole();
-  if (role != 'admin') {
-    throw Exception('Unauthorized: Only admins can fetch users');
+  if (role != 'admin' && role != 'superadmin') { // Autorise admin et superadmin
+    throw Exception('Unauthorized: Only admins and superadmins can fetch users');
   }
 
   try {
@@ -70,6 +59,7 @@ Future<String?> getUserRole() async {
     rethrow;
   }
 }
+
 
 Future<void> requestPasswordReset(String email) async {
   try {
@@ -137,7 +127,7 @@ Future<void> resetPassword(String token, String newPassword) async {
     }
   }
 
- Future<UserModel> createUser(UserModel user, html.File? imageFile) async {
+Future<UserModel> createUser(UserModel user, html.File? imageFile) async {
   final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/users'));
 
   request.fields['nom'] = user.nom;
@@ -171,16 +161,24 @@ Future<void> resetPassword(String token, String newPassword) async {
       if (jsonResponse.containsKey('user')) {
         return UserModel.fromJson(jsonResponse['user']);
       } else {
-        throw Exception('Invalid response format: $responseBody');
+        throw Exception('Format de réponse invalide: $responseBody');
       }
-    } else {
-      throw Exception('Failed to create user: ${response.statusCode} $responseBody');
-    }
+    } else if (response.statusCode == 400) {
+     
+      final jsonResponse = jsonDecode(responseBody);
+      if (jsonResponse['message'] == 'Cet email est déjà utilisé.') {
+        throw Exception('Cet email est déjà utilisé. Veuillez en choisir un autre.');
+      }
+    } 
+
+    throw Exception('Échec de la création de l\'utilisateur: ${response.statusCode} $responseBody');
+
   } catch (e) {
-    print('Error creating user: $e');
-    rethrow;
+    print('Erreur lors de la création de l\'utilisateur: $e');
+    rethrow;  // Laisse l'erreur être gérée par la partie UI
   }
 }
+
 
 Future<void> updateUserGroup(String userId, String groupName) async {
   try {

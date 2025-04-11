@@ -19,10 +19,10 @@ class _DashboardRedirectPageState extends State<DashboardRedirectPage> {
   Future<void> _redirectToReact() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('authToken');
-    String? userId = prefs.getString('userId'); // Récupération du userId
+    String? userId = prefs.getString('userId'); 
 
     if (token != null && userId != null) {
-      final reactUrl = "https://soleil-enquete-react.vercel.app/?token=$token";
+      final reactUrl = "https://app.enquetesoleil.com/childs?token=$token";
       print(reactUrl);
       html.window.location.href = reactUrl;
     } else {

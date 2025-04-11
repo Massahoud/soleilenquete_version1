@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:soleilenquete/services/hom_service.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-
+import 'dart:html' as html; // Ajoutez cette importation
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -77,7 +73,7 @@ class _HomePageState extends State<HomePage> {
       _buildNavItem(context, 'Formulaires', '/question', Icons.app_registration),
       _buildNavItem(context, 'Nuage de point', '/nuageDePoint', Icons.scatter_plot),
       _buildNavItem(context, 'Faire une enquête', '/createSurvey', Icons.assignment),
-       _buildNavItem(context, 'mise', '/miseajour', Icons.assignment),
+     
     ];
 
     if (userRole == 'admin' || userRole == 'superadmin') {
@@ -95,18 +91,48 @@ class _HomePageState extends State<HomePage> {
     return menuItems;
   }
 
-  Widget _buildNavItem(BuildContext context, String title, String route, IconData icon) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blueGrey),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      onTap: () {
-        Navigator.pushNamed(context, route);
-      },
-    );
-  }
+ 
 
+Widget _buildNavItem(BuildContext context, String title, String route, IconData icon) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.blueGrey),
+    title: Text(
+      title,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+    onTap: () async {
+      if (route == '/dashboard') {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('authToken');
+
+        if (token != null) {
+          final reactUrl = "https://app.enquetesoleil.com/childs?token=$token";
+          print(reactUrl);
+          html.window.location.href = reactUrl;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Token introuvable. Veuillez vous reconnecter.')),
+          );
+        }
+      } else if (route == '/groups') {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('authToken');
+
+        if (token != null) {
+          final redirectUrl = "https://app.enquetesoleil.com/?token=$token&redirectTo=groups";
+          print(redirectUrl);
+          html.window.location.href = redirectUrl;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Token introuvable. Veuillez vous reconnecter.')),
+          );
+        }
+      } else {
+        // Navigation normale pour les autres routes
+        Navigator.pushNamed(context, route);
+      }
+    },
+  );
+}
  
 }

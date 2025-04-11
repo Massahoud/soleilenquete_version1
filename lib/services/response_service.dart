@@ -126,7 +126,8 @@ Future<Response> updateResponse(String id, Response response) async {
 
     if (responseApi.statusCode == 200) {
       print('Mise à jour réussie : ${responseApi.body}');
-      return Response.fromJson(json.decode(responseApi.body)['response']);
+      return Response.fromJson(json.decode(responseApi.body)['reponse_text']);
+
     } else {
       print('Erreur API : ${responseApi.statusCode} - ${responseApi.body}');
       throw Exception(

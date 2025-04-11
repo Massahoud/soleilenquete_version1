@@ -20,7 +20,7 @@ class _UserListState extends State<UserListPage> {
   List<UserModel> _allUsers = []; // Liste complète des utilisateurs
 List<UserModel> _filteredUsers = [];
   TextEditingController _searchController = TextEditingController();
-
+ String? _selectedRole;
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken'); // Suppression du token
@@ -49,14 +49,42 @@ Future<void> _loadUsers() async {
   });
 }
 
-void _filterUsers() {
-  final query = _searchController.text.toLowerCase();
+ void _filterUsers() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredUsers = _allUsers.where((user) {
+        bool matchesSearch = user.numero.toString().contains(query) ||
+            user.nom.toLowerCase().contains(query) ||
+            user.prenom.toLowerCase().contains(query);
+        bool matchesRole = _selectedRole == null || user.statut == _selectedRole;
+        return matchesSearch && matchesRole;
+      }).toList();
+    });
+  }
+ void _onRoleSelected(String role) {
+    setState(() {
+      _selectedRole = role;
+      _filterUsers(); // Appliquer le filtre après sélection
+    });
+  }
+  void _resetFilters() {
   setState(() {
-    _filteredUsers = _allUsers.where((user) { // Filtrer depuis _allUsers
-      return user.numero.toString().contains(query) ||
-          user.nom.toLowerCase().contains(query) ||
-          user.prenom.toLowerCase().contains(query);
-    }).toList();
+    _filteredUsers = List.from(_allUsers); // Remet la liste initiale
+  });
+}
+void _handleSessionExpired() {
+  Future.delayed(Duration.zero, () {
+    showDialog(
+      context: context,
+      builder: (context) => CustomDialog(
+        title: "Session Expirée",
+        content: "Votre session a expiré. Veuillez vous reconnecter.",
+        buttonText: "OK",
+        onPressed: () {
+          Navigator.pushReplacementNamed(context, '/login');
+        },
+      ),
+    );
   });
 }
 
@@ -225,79 +253,44 @@ void _filterUsers() {
                     ),
                   ],
                 ),
-              FiltersUSers(userCount: _allUsers.length),
+               FiltersUSers(userCount: _allUsers.length, onRoleSelected: _onRoleSelected,  onResetFilters: _resetFilters,),
 
                 SizedBox(height: 20),
                 Group228Widget(),
-                Expanded(
-                  child: FutureBuilder<List<UserModel>>(
-                    future: _userService.getAllUsers(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        if (snapshot.error.toString().contains('403')) {
-                          Future.delayed(Duration.zero, () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => CustomDialog(
-                                title: "Session Expirée",
-                                content:
-                                    "Votre session a expiré. Veuillez vous reconnecter.",
-                                buttonText: "OK",
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/login');
-                                },
-                              ),
-                            );
-                          });
+              Expanded(
+  child: FutureBuilder<List<UserModel>>(
+    future: _userService.getAllUsers(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        String errorMessage = snapshot.error.toString();
+        
+        if (errorMessage.contains('403') || errorMessage.contains('Unauthorized')) {
+          _handleSessionExpired();
+          return const SizedBox(); // Empêche l'affichage de la liste d'utilisateurs
+        } else {
+          return Center(child: Text('Erreur : $errorMessage'));
+        }
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return const Center(child: Text('Aucun utilisateur trouvé'));
+      } else {
+        return ListView.builder(
+          itemCount: _filteredUsers.length,
+          itemBuilder: (context, index) {
+            final user = _filteredUsers[index];
+            return Padding(
+              padding: const EdgeInsets.all(0),
+              child: Group44Widget(user: user),
+            );
+          },
+        );
+      }
+    },
+  ),
+),
 
-                          return SizedBox(); // Empêche l'affichage de la liste
-                        } else if (snapshot.error
-                            .toString()
-                            .contains('Unauthorized')) {
-                          Future.delayed(Duration.zero, () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => CustomDialog(
-                                title: "Désolé",
-                                content:
-                                    "Vous n'êtes pas autorisé à accéder à cette ressource.",
-                                buttonText: "OK",
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/login');
-                                },
-                              ),
-                            );
-                          });
 
-                          return SizedBox();
-                        } else {
-                          return Center(
-                            child: Text('Erreur : ${snapshot.error}'),
-                          );
-                        }
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(child: Text('Aucun utilisateur trouvé'));
-                      } else {
-                        final users = snapshot.data!;
-                        return ListView.builder(
-                      itemCount: _filteredUsers.length,
-                          itemBuilder: (context, index) {
-                        
-                                final user = _filteredUsers[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(0),
-                              child: Group44Widget(user: user),
-                            );
-                          },
-                        );
-                      }
-                    },
-                  ),
-                ),
               ],
             ),
           ),

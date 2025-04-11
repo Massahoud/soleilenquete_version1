@@ -30,7 +30,7 @@ class _LoginFormState extends State<LoginForm> {
       try {
         // Décodage double pour s'assurer que l'URL est bien interprétée
         String decodedUrl = Uri.decodeFull(Uri.decodeFull(redirect));
-        print("URL de redirection : $decodedUrl");
+      
         return decodedUrl;
       } catch (e) {
         print("Erreur lors du décodage de l'URL de redirection : $redirect");
@@ -49,39 +49,29 @@ Future<void> _submitForm() async {
     });
 
     try {
-      bool loginSuccess = await _authService.login(_email, _motDePasse);
+      await _authService.login(_email, _motDePasse);
 
-      if (loginSuccess) {
-        // Attendre que le token soit enregistré
-        final prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('authToken');
-        print("Token après connexion: $token"); // Vérifie ici si le token est valide
+      final prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('authToken');
 
-        String? redirectUrl = _getRedirectUrl();
-
-        if (redirectUrl != null && redirectUrl.isNotEmpty) {
-          print("Redirection vers: $redirectUrl");
-          Navigator.pushReplacementNamed(
-    context,
-    '/redirect',
-    arguments: redirectUrl, // Passer l'URL de redirection comme argument
-  );
-        } else {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
+      String? redirectUrl = _getRedirectUrl();
+      if (redirectUrl != null && redirectUrl.isNotEmpty) {
+        Navigator.pushReplacementNamed(context, '/redirect', arguments: redirectUrl);
+      } else {
+        Navigator.pushReplacementNamed(context, '/users');
       }
     } catch (e) {
+      print("Erreur lors de la connexion: $e"); 
+
       setState(() {
         _hasError = true;
-        _errorMessage = 'Email ou mot de passe incorrect.';
-      });
-    } finally {
-      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', ''); 
         _isLoading = false;
       });
     }
   }
 }
+
 
   @override
   Widget build(BuildContext context) {

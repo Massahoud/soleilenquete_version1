@@ -26,7 +26,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse("$baseUrl/api/data"),
+      Uri.parse("$baseUrl/api/datanuage"),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse("$baseUrl/api/data/$id"),
+      Uri.parse("$baseUrl/api/datanuage/$id"),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

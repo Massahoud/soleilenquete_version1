@@ -290,27 +290,38 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Commencer une enquête'),
+ @override
+Widget build(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  return Scaffold(
+     backgroundColor: Colors.grey[100],
+    appBar: AppBar(
+      backgroundColor: Colors.white,
+      title: Text('Commencer une enquête'),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.black), // Icône de retour
+        onPressed: () {
+          Navigator.pop(context); // Retour à la page précédente
+        },
       ),
-      body: SingleChildScrollView(
-        child: Center(
-           child: Container(
-      width: MediaQuery.of(context).size.width * 0.5,
+    ),
+    body: SingleChildScrollView(
+      child: Center(
+        child: Container(
+          width: screenWidth > 600 ? screenWidth * 0.5 : screenWidth * 1, // Ajuste la largeur selon l'écran
           child: Card(
-            margin: EdgeInsets.all(30),
+              color: Colors.white,
+            margin: EdgeInsets.all(20), // Marges dynamiques
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     'Informations de l\'enquête',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: screenWidth > 600 ? 24 : 18, // Taille de texte adaptée
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -328,11 +339,13 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                         return Text('Aucune donnée disponible');
                       }
 
-                      numeroController.text = snapshot.data ?? 'N/A';
+                     numeroController.text = snapshot.data ?? 'N/A';
                       return TextFormField(
                         controller: numeroController,
-                        decoration:
-                            InputDecoration(labelText: 'Numéro de l\'enquête'),
+                        decoration: InputDecoration(
+                          labelText: 'Numéro de l\'enquête',
+                          border: OutlineInputBorder(),
+                        ),
                       );
                     },
                   ),
@@ -528,7 +541,15 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
                     height: 10,
                   ),
                   ElevatedButton(
+                    
                     onPressed: _isButtonEnabled ? _savePartialSurvey : null,
+                     style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
                     child: _isLoading
                         ? CircularProgressIndicator()
                         : Text('Envoyer l\'enquête'),

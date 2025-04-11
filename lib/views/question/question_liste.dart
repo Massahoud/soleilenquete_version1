@@ -19,13 +19,26 @@ class QuestionsPage extends StatefulWidget {
 class _QuestionPageState extends State<QuestionsPage> {
   String errorMessage = '';
   List<Map<String, dynamic>> questionsWithResponses = [];
-
+  String _searchQuery = '';
   @override
   void initState() {
     super.initState();
     _loadQuestions();
   }
-
+ void _updateSearchQuery(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase();
+    });
+  }
+ List<Map<String, dynamic>> _filteredQuestions() {
+    return questionsWithResponses.where((q) {
+      final question = q['question'] as Question;
+      final numeroMatch = question.numero.toString().contains(_searchQuery);
+      final textMatch =
+          question.question_text.toLowerCase().contains(_searchQuery);
+      return numeroMatch || textMatch;
+    }).toList();
+  }
   Future<void> _loadQuestions() async {
     try {
       final questions = await QuestionService().getAllQuestions();
@@ -34,8 +47,8 @@ class _QuestionPageState extends State<QuestionsPage> {
       }
     } catch (e) {
      if (e.toString().contains('Unauthorized')) {
-      // Vérification spécifique pour l'erreur de rôle
-      showRoleErrorDialog(context);
+      
+      showRoleErrorDialog();
     }
     }
   }
@@ -63,13 +76,13 @@ class _QuestionPageState extends State<QuestionsPage> {
 
     if (e.toString().contains('Unauthorized') ||
         e.toString().contains('403')) {
-      showSessionExpiredDialog(context);
+      showSessionExpiredDialog();
     } 
   }
 }
 
 
-void showRoleErrorDialog(BuildContext context) {
+void showRoleErrorDialog() {
   showDialog(
     context: context,
     builder: (context) => CustomDialog(
@@ -82,8 +95,7 @@ void showRoleErrorDialog(BuildContext context) {
     ),
   );
 }
-void showSessionExpiredDialog(BuildContext context) {
-  String currentUrl = ModalRoute.of(context)?.settings.name ?? '/';
+void showSessionExpiredDialog() {
 
   showDialog(
     context: context,
@@ -95,7 +107,6 @@ void showSessionExpiredDialog(BuildContext context) {
         Navigator.pushReplacementNamed(
           context,
           '/login',
-          arguments: {'redirect': currentUrl}, // Passer la page actuelle en paramètre
         );
       },
     ),
@@ -122,7 +133,9 @@ void showSessionExpiredDialog(BuildContext context) {
           Expanded(
             child: Column(
               children: [
-                SearchBarWidget(),
+               SearchBarWidget(
+                  onSearch: _updateSearchQuery, // Associe la recherche
+                ),
                 SizedBox(height: 20),
                 FiltersQuestion(),
                 // Card principale avec contenu
@@ -155,8 +168,9 @@ void showSessionExpiredDialog(BuildContext context) {
     );
   }
 
-  /// 🔹 Carte contenant la question et les réponses
+  
   Widget _buildQuestionCard() {
+        final filteredQuestions = _filteredQuestions();
     return errorMessage.isNotEmpty
         ? Center(child: Text(errorMessage, style: TextStyle(color: Colors.red)))
         : SingleChildScrollView(
@@ -166,13 +180,11 @@ void showSessionExpiredDialog(BuildContext context) {
                   height: MediaQuery.of(context).size.height *
                       0.65, // Adjust the height
                   child: ListView.builder(
-                    itemCount: questionsWithResponses.length,
+                   itemCount: _filteredQuestions().length,
+
                     itemBuilder: (context, index) {
-                      final question =
-                          questionsWithResponses[index]['question'] as Question;
-                      final responses = questionsWithResponses[index]
-                              ['responses'] as List<Response>? ??
-                          [];
+                     final question = _filteredQuestions()[index]['question'] as Question;
+final responses = _filteredQuestions()[index]['responses'] as List<Response>? ?? [];
 
                       return Padding(
                         padding: EdgeInsets.all(12),

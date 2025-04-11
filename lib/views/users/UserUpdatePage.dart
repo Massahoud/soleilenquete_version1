@@ -113,7 +113,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey[100],
-      appBar: AppBar(title: Text('Update User')),
+      appBar: AppBar(title: Text('Modifier un utilisateur'),backgroundColor: Colors.white,),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -125,7 +125,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
           children: [
             CircleAvatar(
               radius: 75,
-              backgroundColor: Colors.grey[300],
+              backgroundColor: Colors.grey[100],
               backgroundImage: _imageBytes != null
                   ? MemoryImage(_imageBytes!)
                   : widget.user.photo != null
@@ -142,7 +142,7 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.orange,
                   child: Icon(Icons.photo_camera, color: Colors.white),
                 ),
               ),
@@ -176,23 +176,123 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
           labelText: 'Groupe',
           hintText: "Groupes d'utilisateurs"),
       SizedBox(height: 20),
-    ElevatedButton(
-                  onPressed: _updateUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
-                  child: const Text(
-                    "Se connecter",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                ),
+   Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    Expanded(
+      child: ElevatedButton(
+        onPressed: _updateUser,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+        child: const Text(
+          "Enregistrer",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: ElevatedButton(
+        onPressed: () async {
+          // Affiche une boîte de dialogue de confirmation avant de supprimer l'utilisateur
+          final confirmed = await showDialog<bool>(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: Text(
+        'Êtes-vous sûr(e) de vouloir supprimer cet utilisateur ?',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+      // On n'affiche pas de contenu supplémentaire, on peut mettre un SizedBox.shrink()
+      content: SizedBox.shrink(),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+        // Bouton "Annuler" (outlined)
+        OutlinedButton(
+          onPressed: () => Navigator.pop(context, false),
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: Colors.grey),
+            shape: StadiumBorder(),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+          child: Text(
+            'Annuler',
+            style: TextStyle(
+              color: Colors.black54,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        // Bouton "Supprimer" (rouge)
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            shape: StadiumBorder(),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+          child: Text(
+            'Supprimer',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+);
+
+          if (confirmed == true) {
+            try {
+              await _userService.deleteUser(widget.user.id!);
+              // Après suppression, retournez à la page précédente ou rafraîchissez la page
+              Navigator.pop(context);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erreur lors de la suppression: $e')),
+              );
+            }
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+        child: const Text(
+          "Supprimer",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+  ],
+)
+
     ],
   ),
 ),

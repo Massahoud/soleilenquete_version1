@@ -86,3 +86,45 @@ class CustomDialog extends StatelessWidget {
     );
   }
 }
+
+
+void showCustomSnackBar({
+  required BuildContext context,
+  required String message,
+  String? actionLabel,
+  VoidCallback? onAction,
+  Color backgroundColor = Colors.grey,
+  Color textColor = Colors.white,
+  Color actionColor = Colors.orange,
+  Duration duration = const Duration(seconds: 3),
+}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: backgroundColor,
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: textColor),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (actionLabel != null && onAction != null)
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                onAction();
+              },
+              child: Text(
+                actionLabel,
+                style: TextStyle(color: actionColor, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
+      duration: duration,
+    ),
+  );
+}

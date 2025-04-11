@@ -12,10 +12,11 @@ class CreateGroupPage extends StatefulWidget {
 class _CreateGroupPageState extends State<CreateGroupPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _dateController = TextEditingController(); 
+  final _dateController = TextEditingController();
 
   List<UserModel> _users = [];
   List<String> _selectedMembers = [];
+  List<String> _selectedAdmins = [];
   bool _isLoading = true;
 
   @override
@@ -24,7 +25,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     _fetchUsers();
   }
 
-  // Récupérer tous les utilisateurs
   Future<void> _fetchUsers() async {
     final userService = UserService();
     try {
@@ -42,68 +42,69 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     }
   }
 
- Future<void> _createGroup() async {
-  if (_nameController.text.isEmpty ||
-      _descriptionController.text.isEmpty ||
-      _dateController.text.isEmpty ||
-      _selectedMembers.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Veuillez remplir tous les champs')),
-    );
-    return;
-  }
+  Future<void> _createGroup() async {
+    if (_nameController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _dateController.text.isEmpty ||
+         _selectedAdmins.isEmpty||
+        _selectedMembers.isEmpty 
+       ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Veuillez remplir tous les champs et sélectionner au moins un administrateur')),
+      );
+      return;
+    }
 
-  try {
-   
-    List<String> membersList = _selectedMembers.map((e) => e.toString()).toList();
+    try {
+      final groupService = GroupService();
+      final newGroup = await groupService.createGroup(
+        _nameController.text,
+        _descriptionController.text,
+        _dateController.text,
+        _selectedAdmins,
+        _selectedMembers,
+        
+      );
 
-    final groupService = GroupService();
-    final newGroup = await groupService.createGroup(
-      _nameController.text,
-      _descriptionController.text,
-      _dateController.text,
-      membersList,
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Groupe créé avec succès!')),
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Groupe créé avec succès!')),
-    );
-
-    Navigator.pop(context, newGroup);
-  } catch (e) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Erreur'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Détails de l\'erreur: $e'),
-                SizedBox(height: 16),
-                Text('Données soumises:'),
-                Text('Nom: ${_nameController.text}'),
-                Text('Description: ${_descriptionController.text}'),
-                Text('Date de création: ${_dateController.text}'),
-                Text('Membres sélectionnés: ${_selectedMembers.toList()}'),
-              ],
+      Navigator.pop(context, newGroup);
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Erreur'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Détails de l \'erreur: $e'),
+                  SizedBox(height: 16),
+                  Text('Données soumises:'),
+                  Text('Nom: ${_nameController.text}'),
+                  Text('Description: ${_descriptionController.text}'),
+                  Text('Date de création: ${_dateController.text}'),
+                  Text('Membres sélectionnés: ${_selectedMembers.toList()}'),
+                  Text('Administrateurs sélectionnés: ${_selectedAdmins.toList()}'),
+                ],
+              ),
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Fermer'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+            actions: <Widget>[
+              TextButton(
+                child: Text('Fermer'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -127,10 +128,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     decoration: InputDecoration(labelText: 'Description du Groupe'),
                   ),
                   TextField(
-                    controller: _dateController,  
+                    controller: _dateController,
                     decoration: InputDecoration(
                       labelText: 'Date de Création',
-                      hintText: 'YYYY-MM-DD',  
+                      hintText: 'YYYY-MM-DD',
                     ),
                     keyboardType: TextInputType.datetime,
                     onTap: () async {
@@ -141,16 +142,35 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         lastDate: DateTime(2101),
                       );
                       if (selectedDate != null) {
-                     
                         _dateController.text = GroupModel.getCurrentDate();
                       }
                     },
                   ),
                   SizedBox(height: 16),
-                  Text(
-                    'Sélectionner des Membres:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                   Text('Sélectionner des Administrateurs:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _users.length,
+                      itemBuilder: (context, index) {
+                        final user = _users[index];
+                        return CheckboxListTile(
+                          title: Text(user.nom),
+                          value: _selectedAdmins.contains(user.id),
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                _selectedAdmins.add(user.id ?? 'default-id');
+                              } else {
+                                _selectedAdmins.remove(user.id);
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
                   ),
+                  SizedBox(height: 16),
+                  Text('Sélectionner des Membres:', style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _users.length,
@@ -172,6 +192,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       },
                     ),
                   ),
+                 
                   SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _createGroup,

@@ -4,12 +4,17 @@ import 'package:soleilenquete/services/profil_service.dart';
 import 'package:soleilenquete/models/user_model.dart';
 import 'dart:ui';
 class SearchBarWidget extends StatefulWidget {
+    final ValueChanged<String>? onSearch; // ✅ Ajouter ce paramètre
+
+  const SearchBarWidget({Key? key, this.onSearch}) : super(key: key);
   @override
   _SearchBarWidgetState createState() => _SearchBarWidgetState();
 }
 
 class _SearchBarWidgetState extends State<SearchBarWidget> {
   late Future<UserModel> _user;
+final TextEditingController _searchController = TextEditingController();
+ 
 
   @override
   void initState() {
@@ -54,7 +59,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
-                  child: const TextField(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (query) {
+                      if (widget.onSearch != null) { 
+                        widget.onSearch!(query);
+                      }
+                    },
                     decoration: InputDecoration(
                       hintText: "Rechercher un Numero et par question ...",
                       hintStyle: TextStyle(color: Colors.grey),

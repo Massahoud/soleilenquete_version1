@@ -20,7 +20,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     });
 
     final String email = _emailController.text.trim();
-   final Uri url = Uri.parse('https://soleilmainapi.vercel.app/api/auth/request-reset-password');
+   final Uri url = Uri.parse('https://api.enquetesoleil.com/api/auth/request-reset-password');
 
 
     try {
@@ -112,17 +112,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                         labelText: "E-mail",
                       ),
                       SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: _isLoading
+                      _isLoading
                 ? CircularProgressIndicator()
                 :  ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
+                             minimumSize: const Size(
+                                                    double.infinity, 50),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(50),
                             ),
-                            padding: EdgeInsets.symmetric(vertical: 14),
+                           
                           ),
                           onPressed:  _requestPasswordReset,
                           child: Text(
@@ -130,7 +130,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
-                      ),
+                      
                        if (_message != null)
               Text(
                 _message!,

@@ -3,27 +3,16 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/question_model.dart';
 
-import 'package:jwt_decoder/jwt_decoder.dart';
+
 
 class QuestionService {
   final String baseUrl =
-      "https://soleilmainapi.vercel.app/api"; // Remplacez par votre URL d'API
+      "https://soleilmainapi.vercel.app/api"; 
 
-  Future<String?> getUserRole() async {
-    final authToken = await getAuthToken();
-    if (authToken == null) {
-      return null;
-    }
-
-    try {
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(authToken);
-      return decodedToken[
-          'role']; // Assurez-vous que le backend inclut 'role' dans le token
-    } catch (e) {
-      print('Error decoding token: $e');
-      return null;
-    }
-  }
+Future<String?> getUserRole() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('userRole'); 
+}
 
   Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -42,7 +31,7 @@ class QuestionService {
       throw Exception('No auth token found');
     }
     final role = await getUserRole();
-    if (role != 'admin') {
+  if (role != 'admin' && role != 'superadmin') {
       throw Exception('Unauthorized: Only admins can fetch users');
     }
 

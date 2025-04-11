@@ -28,6 +28,7 @@ class _SurveyPageState extends State<SurveyPage> {
   SurveyModel? _tempSurvey;
   html.File? _imageFile;
   final Map<String, Map<String, String>> answers = {};
+  
   @override
   void initState() {
     super.initState();
@@ -248,76 +249,128 @@ class _SurveyPageState extends State<SurveyPage> {
     }
   }
 
-  Future<void> _afficherBoiteDialogueAvis() async {
-    TextEditingController avisController = TextEditingController();
-    bool isLoading = false;
+ Future<void> _afficherBoiteDialogueAvis() async {
+  TextEditingController avisController = TextEditingController();
+  bool isLoading = false;
+final isMobile = MediaQuery.of(context).size.width < 600;
+final dialogWidth = isMobile ? MediaQuery.of(context).size.width * 0.9 : 450.0;
+final dialogHeight = isMobile ? MediaQuery.of(context).size.height * 0.30 : 310.0;
 
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Avis de l\'enquêteur'),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text('Veuillez entrer votre avis:'),
-                    TextField(
-                      controller: avisController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Écrire ici',
-                        border: OutlineInputBorder(),
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Center(
+            child: Container(
+       width: dialogWidth,
+height: dialogHeight,
+
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  
+                ),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child:  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                           Text(
+                            "Avis de l'enquêteur",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[300],
+                            ),
+                            child: IconButton(
+                              icon: Icon(Icons.close, color: Colors.black87),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      // Zone de texte
+                      Expanded(
+                        child: TextField(
+                          controller: avisController,
+                          maxLines: null,
+                          expands: true,
+                          decoration: InputDecoration(
+                            hintText: 'Écrire ici...',
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.grey[100],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Boutons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Annuler'),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: isLoading
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+
+                                    await _sendSurveyAndAnswers(
+                                        avisController.text);
+
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+
+                                    Navigator.of(context).pop();
+                                    _afficherBoiteSucces();
+                                  },
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.orange,
+                                    ),
+                                  )
+                                : const Text('Enregistrer'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Annuler'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: isLoading
-                      ? SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text('Enregistrer'),
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          setState(() {
-                            isLoading = true;
-                          });
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+ 
 
-                          await _sendSurveyAndAnswers(avisController.text);
-
-                          setState(() {
-                            isLoading = false;
-                          });
-
-                          Navigator.of(context).pop();
-
-                          _afficherBoiteSucces();
-                        },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
 
   void _afficherBoiteSucces() {
     showDialog<void>(
@@ -325,148 +378,205 @@ class _SurveyPageState extends State<SurveyPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Succès'),
-          content: Text('Votre avis a été enregistré avec succès !'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: Text(
+        'Enquête enregistrée avec succès',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+      // On n'affiche pas de contenu supplémentaire, on peut mettre un SizedBox.shrink()
+      content: SizedBox.shrink(),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+       
+        // Bouton "Supprimer" (rouge)
+        ElevatedButton(
+           onPressed: () {
+             
                 Navigator.pushReplacementNamed(context, '/dashboard');
               },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            shape: StadiumBorder(),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+          child: Text(
+            'ok',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
       },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: Text("Enquête"),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4.0),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey[300],
-            color: Colors.blue,
-          ),
+ @override
+Widget build(BuildContext context) {
+  final isMobile = MediaQuery.of(context).size.width < 600; // Détection de l'écran mobile
+
+  return Scaffold(
+    backgroundColor: Colors.grey[100],
+    appBar: AppBar(
+      title: Text("Enquête"),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(4.0),
+        child: LinearProgressIndicator(
+          value: progress, // Connecté à la progression du défilement
+          backgroundColor: Colors.grey[300],
+          color: Colors.blue,
         ),
       ),
-      body: Center(
+    ),
+    body: Center(
+      child: SingleChildScrollView(
+        controller: _scrollController, // Contrôleur pour suivre le défilement
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: Colors.white,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+          child: Align(
+            alignment: Alignment.topCenter,
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height,
-              padding: const EdgeInsets.all(16.0),
-              child: questionsWithResponses.isEmpty
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      controller: _scrollController,
-                      itemCount: questionsWithResponses.length,
-                      itemBuilder: (context, index) {
-                        final questionData = questionsWithResponses[index];
-                        final question = questionData['question'] as Question;
-                        final responses =
-                            questionData['responses'] as List<Response>?;
+              width: isMobile
+                  ? double.infinity // Pleine largeur pour mobile
+                  : MediaQuery.of(context).size.width * 0.6, // 60% pour les écrans non mobiles
+              child: Card(
+                color: Colors.white,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (questionsWithResponses.isEmpty)
+                        Center(child: CircularProgressIndicator())
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: questionsWithResponses.length,
+                          itemBuilder: (context, index) {
+                            final questionData = questionsWithResponses[index];
+                            final question = questionData['question'] as Question;
+                            final responses =
+                                questionData['responses'] as List<Response>?;
 
-                        Widget questionWidget;
-                        if (question.type == 'reponseunique') {
-                          questionWidget = SingleChoiceQuestion(
-                            questionNumber: question.numero,
-                            question: question.question_text,
-                            options: responses
-                                    ?.map((response) => response.reponse_text)
-                                    .toList() ??
-                                [],
-                            onChanged: (selectedText) {
-                              final selectedResponse = responses?.firstWhere(
-                                  (r) => r.reponse_text == selectedText);
-                              if (selectedResponse != null) {
-                                _handleAnswer(
-                                  questionId: question.id!,
-                                  questionText: question.question_text,
-                                  questionNumber: question.numero,
-                                  responseId: selectedResponse.id!,
-                                  responseText: selectedResponse.reponse_text,
-                                );
-                              }
-                            },
-                          );
-                        } else if (question.type == 'reponsemultiples') {
-                          questionWidget = MultipleChoiceQuestion(
-                            questionNumber: question.numero,
-                            question: question.question_text,
-                            options: responses
-                                    ?.map((response) => response.reponse_text)
-                                    .toList() ??
-                                [],
-                            onChanged: (selectedTexts) {
-                              final selectedResponses = responses
-                                  ?.where((r) =>
-                                      selectedTexts.contains(r.reponse_text))
-                                  .toList();
+                            Widget questionWidget;
+                            if (question.type == 'reponseunique') {
+                              questionWidget = SingleChoiceQuestion(
+                                questionNumber: question.numero,
+                                question: question.question_text,
+                                options: responses
+                                        ?.map((response) => response.reponse_text)
+                                        .toList() ??
+                                    [],
+                                onChanged: (selectedText) {
+                                  final selectedResponse = responses?.firstWhere(
+                                      (r) => r.reponse_text == selectedText);
+                                  if (selectedResponse != null) {
+                                    _handleAnswer(
+                                      questionId: question.id!,
+                                      questionText: question.question_text,
+                                      questionNumber: question.numero,
+                                      responseId: selectedResponse.id!,
+                                      responseText: selectedResponse.reponse_text,
+                                    );
+                                  }
+                                },
+                              );
+                            } else if (question.type == 'reponsemultiples') {
+                              questionWidget = MultipleChoiceQuestion(
+                                questionNumber: question.numero,
+                                question: question.question_text,
+                                options: responses
+                                        ?.map((response) => response.reponse_text)
+                                        .toList() ??
+                                    [],
+                                onChanged: (selectedTexts) {
+                                  final selectedResponses = responses
+                                      ?.where((r) =>
+                                          selectedTexts.contains(r.reponse_text))
+                                      .toList();
 
-                              if (selectedResponses != null) {
-                                for (var response in selectedResponses) {
-                                  _handleAnswer(
-                                    questionId: question.id!,
-                                    questionText: question.question_text,
-                                    questionNumber: question.numero,
-                                    responseId: response.id!,
-                                    responseText: response.reponse_text,
-                                  );
-                                }
-                              }
-                            },
-                          );
-                        } else {
-                          questionWidget = Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CustomTextField(
-                              controller: textControllers.putIfAbsent(
-                                  question.id!, () => TextEditingController()),
-                              labelText:
-                                  "${question.numero}. ${question.question_text}",
-                              hintText: 'Entrez le texte',
-                              onChanged: (value) {
-                                _handleAnswer(
-                                  questionId: question.id!,
-                                  questionText: question.question_text,
-                                  questionNumber: question.numero,
-                                  responseText: value,
-                                );
-                              },
-                            ),
-                          );
-                        }
+                                  if (selectedResponses != null) {
+                                    for (var response in selectedResponses) {
+                                      _handleAnswer(
+                                        questionId: question.id!,
+                                        questionText: question.question_text,
+                                        questionNumber: question.numero,
+                                        responseId: response.id!,
+                                        responseText: response.reponse_text,
+                                      );
+                                    }
+                                  }
+                                },
+                              );
+                            } else {
+                              questionWidget = Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: CustomTextField(
+                                  controller: textControllers.putIfAbsent(
+                                      question.id!, () => TextEditingController()),
+                                  labelText:
+                                      "${question.numero}. ${question.question_text}",
+                                  hintText: 'Entrez le texte',
+                                  onChanged: (value) {
+                                    _handleAnswer(
+                                      questionId: question.id!,
+                                      questionText: question.question_text,
+                                      questionNumber: question.numero,
+                                      responseText: value,
+                                    );
+                                  },
+                                ),
+                              );
+                            }
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            questionWidget,
-                          ],
-                        );
-                      },
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                questionWidget,
+                              ],
+                            );
+                          },
+                        ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _afficherBoiteDialogueAvis,
+                          child: const Text('Enregistrer', style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
                     ),
+                  ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _afficherBoiteDialogueAvis,
-        child: Icon(Icons.save),
-      ),
-    );
-  }
+    ),
+  );
+}
 }

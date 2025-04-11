@@ -5,13 +5,14 @@ class GroupModel {
   final String description;
   final String date_creation;
   final List<String> membres;
-
+final List<String> administateurs;
   GroupModel({
     required this.id,
     required this.nom,
     required this.description,
     required this.date_creation,
     required this.membres,
+     required this.administateurs,
   });
 
  
@@ -22,6 +23,7 @@ class GroupModel {
       description: json['description'],
       date_creation: json['date_creation'],
       membres: List<String>.from(json['membres']),  
+      administateurs: List<String>.from(json['membres']), 
     );
   }
 
@@ -32,6 +34,7 @@ class GroupModel {
       'description': description,
       'date_creation': date_creation,
       'membres': membres,  
+       'administrateurs': administateurs,  
     };
   }
 

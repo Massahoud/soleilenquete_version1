@@ -31,7 +31,7 @@ class _RedirectPageState extends State<RedirectPage> {
         });
 
         html.window.location.href = newUri.toString();
-        print("Redirection vers : ${newUri.toString()}");
+        
       } else {
         // Si le token est introuvable, afficher un message d'erreur
         ScaffoldMessenger.of(context).showSnackBar(

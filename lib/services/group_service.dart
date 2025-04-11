@@ -70,145 +70,121 @@ class GroupService {
       rethrow;
     }
   }
-
- Future<GroupModel> createGroup(String nom, String description, String date_creation, List<String> memberIds) async {
-  final authToken = await getAuthToken();
-  if (authToken == null) {
-    throw Exception('No auth token found');
-  }
-
-  
-  if (memberIds.isEmpty) {
-    throw Exception('Invalid input: one or more fields are null or empty');
-  }
-
-  try {
-    final response = await http.post(
-  Uri.parse('$baseUrl/groups'),
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $authToken',
-  },
-  body: jsonEncode({
-    'nom': nom,
-    'description': description,
-    'date_creation': date_creation,
-    'membres': memberIds,
-  }),
-);
-
-print('Response status: ${response.statusCode}');
-print('Response body: ${response.body}');
-
-if (response.statusCode == 201) {
-  final responseBody = jsonDecode(response.body);
-
-
-  if (responseBody.containsKey('group') && responseBody['group'] != null) {
-    final groupData = responseBody['group'];
-
-   
-    if (groupData['membres'] != null) {
-     
-      final List<String> members = List<String>.from(groupData['membres'] ?? []);
-     
-      return GroupModel.fromJson(groupData);
-    } else {
-      throw Exception('Group does not have members.');
-    }
-  } else {
-    throw Exception('No group data found in response.');
-  }
-} else {
-  throw Exception('Failed to create group: ${response.statusCode} ${response.body}');
-}
-
-
-
-   
-  } catch (e) {
-    print('Error creating groupement: $e');
-    rethrow;
-  }
-}
-
-Future<GroupModel> updateGroup(
-  String id,
-  String nom,
-  String description,
-  String date_creation,
-  List<String> memberIds,
-) async {
-
-  final authToken = await getAuthToken();
-  if (authToken == null) {
-    throw Exception('No auth token found');
-  }
-
-  
-  if (nom.isEmpty || description.isEmpty || date_creation.isEmpty || memberIds.isEmpty) {
-    throw Exception('Invalid input: one or more fields are null or empty');
-  }
-
-  try {
-   
-    final groupResponse = await http.get(
-      Uri.parse('$baseUrl/groups/$id'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $authToken',
-      },
-    );
-
-    if (groupResponse.statusCode != 200) {
-      throw Exception(
-          'Failed to fetch group details: ${groupResponse.statusCode} ${groupResponse.body}');
+ Future<GroupModel> createGroup(
+      String nom, String description, String date_creation, List<String> adminIds, List<String> memberIds) async {
+    final authToken = await getAuthToken();
+    if (authToken == null) {
+      throw Exception('No auth token found');
     }
 
-    final groupData = jsonDecode(groupResponse.body);
+    if (memberIds.isEmpty || adminIds.isEmpty) {
+      throw Exception('Invalid input: members or admins cannot be empty');
+    }
 
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/groups'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'nom': nom,
+          'description': description,
+          'date_creation': date_creation,
+          'administrateurs': adminIds,
+          'membres': memberIds,
+          
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+        if (responseBody.containsKey('group') && responseBody['group'] != null) {
+          return GroupModel.fromJson(responseBody['group']);
+        } else {
+          throw Exception('No group data found in response.');
+        }
+      } else {
+        throw Exception('Failed to create group: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating group: $e');
+      rethrow;
+    }
+  }
+
+  Future<GroupModel> updateGroup(
+    String id,
+    String nom,
+    String description,
+    String date_creation,
+    List<String> adminIds,
+    List<String> memberIds,
     
-    final List<String> currentMembers = List<String>.from(groupData['membres'] ?? []);
-
-   
-    final updatedMembers = {...currentMembers, ...memberIds}.toList();
-
-    
-    if (!updatedMembers.every((member) => member is String)) {
-      throw Exception('All member IDs must be strings.');
+  ) async {
+    final authToken = await getAuthToken();
+    if (authToken == null) {
+      throw Exception('No auth token found');
     }
 
- 
-    final response = await http.put(
-      Uri.parse('$baseUrl/groups/$id'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $authToken',
-      },
-      body: jsonEncode({
-        'nom': nom,
-        'description': description,
-        'date_creation': date_creation,
-        'membres': updatedMembers,
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update group: ${response.statusCode} ${response.body}');
+    if (nom.isEmpty || description.isEmpty || date_creation.isEmpty ||adminIds.isEmpty ||memberIds.isEmpty  ) {
+      throw Exception('Invalid input: one or more fields are null or empty');
     }
 
-    
-    final responseBody = jsonDecode(response.body);
-    if (responseBody.containsKey('group') && responseBody['group'] != null) {
-      return GroupModel.fromJson(responseBody['group']);
-    } else {
-      throw Exception('Failed to get updated group data');
+    try {
+      final groupResponse = await http.get(
+        Uri.parse('$baseUrl/groups/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (groupResponse.statusCode != 200) {
+        throw Exception('Failed to fetch group details: ${groupResponse.statusCode} ${groupResponse.body}');
+      }
+
+      final groupData = jsonDecode(groupResponse.body);
+final List<String> currentAdmins = List<String>.from(groupData['administrateurs'] ?? []);
+      final List<String> currentMembers = List<String>.from(groupData['membres'] ?? []);
+      
+final updatedAdmins = {...currentAdmins, ...adminIds}.toList();
+      final updatedMembers = {...currentMembers, ...memberIds}.toList();
+      
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/groups/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'nom': nom,
+          'description': description,
+          'date_creation': date_creation,
+          'administrateurs': updatedAdmins,
+          'membres': updatedMembers,
+          
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update group: ${response.statusCode} ${response.body}');
+      }
+
+      final responseBody = jsonDecode(response.body);
+      if (responseBody.containsKey('group') && responseBody['group'] != null) {
+        return GroupModel.fromJson(responseBody['group']);
+      } else {
+        throw Exception('Failed to get updated group data');
+      }
+    } catch (e) {
+      print('Error updating group: $e');
+      rethrow;
     }
-  } catch (e) {
-    print('Error updating group: $e');
-    rethrow;
   }
-}
+
 
 
  
