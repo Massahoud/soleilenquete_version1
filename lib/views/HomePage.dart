@@ -73,6 +73,7 @@ class _HomePageState extends State<HomePage> {
       _buildNavItem(context, 'Formulaires', '/question', Icons.app_registration),
       _buildNavItem(context, 'Nuage de point', '/nuageDePoint', Icons.scatter_plot),
       _buildNavItem(context, 'Faire une enquête', '/createSurvey', Icons.assignment),
+      
      
     ];
 
@@ -80,12 +81,12 @@ class _HomePageState extends State<HomePage> {
       menuItems.addAll([
         const Divider(),
         _buildNavItem(context, 'Utilisateurs', '/users', Icons.people),
-        _buildNavItem(context, 'Groupes d\'utilisateurs', '/groups', Icons.group),
+       
       ]);
     }
 
     if (userRole == 'superadmin') {
-      menuItems.add(_buildNavItem(context, 'Créer un Groupe', '/groups/create', Icons.group_add));
+      menuItems.add( _buildNavItem(context, 'Groupes d\'utilisateurs', '/groups', Icons.group));
     }
 
     return menuItems;
@@ -106,8 +107,8 @@ Widget _buildNavItem(BuildContext context, String title, String route, IconData 
         String? token = prefs.getString('authToken');
 
         if (token != null) {
-          final reactUrl = "https://app.enquetesoleil.com/childs?token=$token";
-          print(reactUrl);
+          final reactUrl = " https://enquetesoleil/childs?token=$token";
+         
           html.window.location.href = reactUrl;
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -119,8 +120,8 @@ Widget _buildNavItem(BuildContext context, String title, String route, IconData 
         String? token = prefs.getString('authToken');
 
         if (token != null) {
-          final redirectUrl = "https://app.enquetesoleil.com/?token=$token&redirectTo=groups";
-          print(redirectUrl);
+          final redirectUrl = " https://enquetesoleil/?token=$token&redirectTo=groups";
+          
           html.window.location.href = redirectUrl;
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -128,7 +129,7 @@ Widget _buildNavItem(BuildContext context, String title, String route, IconData 
           );
         }
       } else {
-        // Navigation normale pour les autres routes
+        
         Navigator.pushNamed(context, route);
       }
     },

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:io';
 import 'dart:html' as html;
 import 'package:soleilenquete/models/survey_model.dart';
+import 'package:soleilenquete/services/group_service.dart';
 
 import 'package:soleilenquete/services/survey_service.dart';
 
@@ -39,7 +41,8 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
   List<String> enqueteursPrenoms = [];
   String selectedSexeType = 'M';
   String selectedlieuType = 'koudougou';
-
+List<Map<String, dynamic>> userGroups = []; // Liste des groupes de l'utilisateur
+String? selectedGroupId; // ID du groupe sélectionné
   bool _isUploading = false;
   SurveyModel? _tempSurvey;
 
@@ -76,6 +79,23 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
 
     return nextNumberOrder;
   }
+  Future<void> _fetchUserGroups() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getString('userId'); // Récupérer l'ID de l'utilisateur
+
+  if (userId != null) {
+    try {
+      final groups = await GroupService().getGroupsByUserId(userId);
+      setState(() {
+        userGroups = groups;
+      });
+    } catch (e) {
+      print('Erreur lors de la récupération des groupes : $e');
+    }
+  } else {
+    print('Aucun ID utilisateur trouvé dans SharedPreferences');
+  }
+}
 
   Future<void> _selectDateTime(BuildContext context) async {
     final DateTime? pickedDateTime = await showDatePicker(
@@ -178,6 +198,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
       longitude: locationData?.longitude ?? 0.0,
       photoUrl: imageUrl ?? '',
       avisEnqueteur: '', 
+      groupe: selectedGroupId ?? 'Non spécifié',
     );
 
     if (_tempSurvey?.photoUrl?.isEmpty ?? true) {
@@ -217,6 +238,7 @@ class _StartSurveyPageState extends State<StartSurveyPage> {
     numeroController = TextEditingController(); 
     getEnqueteurs();
     nextNumberOrder = getnextNumberOrder();
+     _fetchUserGroups(); 
   }
 
 
@@ -377,6 +399,25 @@ Widget build(BuildContext context) {
                       border: OutlineInputBorder(),
                     ),
                   ),
+                   SizedBox(height: 20),
+                  DropdownButtonFormField<String>(
+  value: selectedGroupId,
+  onChanged: (String? newValue) {
+    setState(() {
+      selectedGroupId = newValue; // Mettre à jour l'ID du groupe sélectionné
+    });
+  },
+  items: userGroups.map((group) {
+    return DropdownMenuItem<String>(
+      value: group['id'], // Utiliser l'ID du groupe comme valeur
+      child: Text(group['nom'] ?? 'Nom inconnu'), // Afficher le nom du groupe
+    );
+  }).toList(),
+  decoration: InputDecoration(
+    labelText: 'Groupe',
+    border: OutlineInputBorder(),
+  ),
+),
                   SizedBox(height: 20),
                   TextFormField(
                     controller: nomenfantController,

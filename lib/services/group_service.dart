@@ -185,6 +185,45 @@ final updatedAdmins = {...currentAdmins, ...adminIds}.toList();
     }
   }
 
+ Future<List<Map<String, dynamic>>> getGroupsByUserId(String userId) async {
+  final authToken = await getAuthToken();
+  if (authToken == null) {
+    throw Exception('No auth token found');
+  }
+
+  // Construire l'URL pour récupérer les groupes par userId
+  final url = Uri.parse('$baseUrl/groups/user/$userId');
+
+  try {
+    // Effectuer la requête GET
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $authToken', // Ajouter le token d'authentification
+        'Content-Type': 'application/json',
+      },
+    );
+
+    // Vérifier le code de réponse
+    if (response.statusCode == 200) {
+      // Décoder la réponse JSON
+      final List<dynamic> data = json.decode(response.body);
+      // Convertir chaque élément en Map<String, dynamic>
+      return data.map((group) => group as Map<String, dynamic>).toList();
+    } else if (response.statusCode == 404) {
+      // Aucun groupe trouvé pour cet utilisateur
+      return [];
+    } else {
+      // Lever une exception pour les autres codes de réponse
+      throw Exception(
+          'Erreur lors de la récupération des groupes : ${response.statusCode} ${response.body}');
+    }
+  } catch (error) {
+    // Gérer les erreurs réseau ou autres exceptions
+    print('Erreur réseau ou autre : $error');
+    throw Exception('Erreur réseau : $error');
+  }
+}
 
 
  

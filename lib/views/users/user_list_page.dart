@@ -21,12 +21,19 @@ class _UserListState extends State<UserListPage> {
 List<UserModel> _filteredUsers = [];
   TextEditingController _searchController = TextEditingController();
  String? _selectedRole;
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken'); // Suppression du token
-    Navigator.pushNamedAndRemoveUntil(
-        context, '/login', (route) => false); // Redirection vers login
-  }
+
+Future<void> _logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
+
+  Navigator.pushNamedAndRemoveUntil(
+    context, 
+    '/login', 
+    (route) => false, // Redirection vers la page de connexion
+  );
+}
 
   @override
   void initState() {
@@ -72,7 +79,12 @@ Future<void> _loadUsers() async {
     _filteredUsers = List.from(_allUsers); // Remet la liste initiale
   });
 }
-void _handleSessionExpired() {
+void _handleSessionExpired() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
+
   Future.delayed(Duration.zero, () {
     showDialog(
       context: context,
@@ -81,7 +93,11 @@ void _handleSessionExpired() {
         content: "Votre session a expiré. Veuillez vous reconnecter.",
         buttonText: "OK",
         onPressed: () {
-          Navigator.pushReplacementNamed(context, '/login');
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false, // Redirection vers la page de connexion
+          );
         },
       ),
     );

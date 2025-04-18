@@ -3,6 +3,7 @@ class SurveyModel {
   String numero;
   String nomEnqueteur;
   String prenomEnqueteur;
+  String groupe;
   String nomEnfant;
   String prenomEnfant;
   String sexeEnfant;
@@ -20,6 +21,7 @@ String  avisEnqueteur;
     required this.numero,
     required this.nomEnqueteur,
     required this.prenomEnqueteur,
+    required this.groupe,
     required this.nomEnfant,
     required this.prenomEnfant,
     required this.sexeEnfant,
@@ -40,6 +42,7 @@ String  avisEnqueteur;
       'numero': numero,
       'nom_enqueteur': nomEnqueteur,
       'prenom_enqueteur': prenomEnqueteur,
+      'groupe': groupe,
       'nom_enfant': nomEnfant,
       'prenom_enfant': prenomEnfant,
       'sexe_enfant': sexeEnfant,
@@ -65,6 +68,7 @@ String  avisEnqueteur;
       numero: json['numero'] ?? '',
       nomEnqueteur: json['nom_enqueteur'] ?? '',
       prenomEnqueteur: json['prenom_enqueteur'] ?? '',
+      groupe: json['groupe'] ?? '',
       nomEnfant: json['nom_enfant'] ?? '',
       prenomEnfant: json['prenom_enfant'] ?? '',
       sexeEnfant: json['sexe_enfant'] ?? '',
@@ -85,7 +89,7 @@ String  avisEnqueteur;
   
   @override
   String toString() {
-    return 'SurveyModel(id: $id, numero: $numero, nomEnqueteur: $nomEnqueteur, prenomEnqueteur: $prenomEnqueteur, '
+    return 'SurveyModel(id: $id, numero: $numero, nomEnqueteur: $nomEnqueteur, prenomEnqueteur: $prenomEnqueteur,groupe: $groupe, '
         'nomEnfant: $nomEnfant, prenomEnfant: $prenomEnfant, sexeEnfant: $sexeEnfant, ageEnfant: $ageEnfant, '
         'contactEnfant: $contactEnfant, nomContactEnfant: $nomContactEnfant, lieuEnquete: $lieuEnquete, '
         'dateHeureDebut: $dateHeureDebut, photoUrl: $photoUrl, latitude: $latitude, longitude: $longitude)';

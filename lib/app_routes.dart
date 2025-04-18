@@ -38,13 +38,13 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginPages(),
-        '/Signup': (context) => SignUpPages(),
+       
         '/home': (context) => HomePage(),
         '/createSurvey': (context) => StartSurveyPage(),
         '/users': (context) => UserListPage(),
         '/users/invite': (context) =>  SendInvitePage(),
         '/groups/create': (context) => CreateGroupPage(),
-        
+         '/createUser': (context) => SignUpScreen(),
         '/question': (context) => QuestionsPage(),
         
         '/nuageDePoint': (context) => ScatterPlotPage(),
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
   redirectUrl: ModalRoute.of(context)!.settings.arguments as String,
 ),
 
-         '/miseajour':(context)  => UpdateEtatPage(),},
+         '/miseajour':(context)  => AjouterGroupePage(),},
       onGenerateRoute: (settings) {
         
   

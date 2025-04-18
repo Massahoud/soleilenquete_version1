@@ -4,6 +4,8 @@ import 'dart:html' as html;
 import 'package:soleilenquete/models/user_model.dart';
 import 'package:soleilenquete/services/api_service.dart';
 import 'package:soleilenquete/component/customTextField.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleilenquete/widget/customDialog.dart';
 class UpdateUserPage extends StatefulWidget {
   final UserModel user;
 
@@ -71,44 +73,115 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
     });
   }
 
-  Future<void> _updateUser() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      if (widget.user.id == null || widget.user.id!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid user ID')),
-        );
-        return;
-      }
-
-      final updatedUser = UserModel(
-        id: widget.user.id,
-        nom: _nomController.text,
-        prenom: _prenomController.text,
-        email: _emailController.text,
-        motDePasse: widget.user.motDePasse,
-        telephone: _telephoneController.text,
-        statut: _statutController.text,
-        groupe: _groupeController.text,
-        photo: widget.user.photo,
+ Future<void> _updateUser() async {
+  if (_formKey.currentState?.validate() ?? false) {
+    if (widget.user.id == null || widget.user.id!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid user ID')),
       );
+      return;
+    }
 
-      try {
-        html.File? imageFile;
-        if (_imageBytes != null) {
-          imageFile = _convertBytesToFile(_imageBytes!, 'user_image.jpg');
-        }
+    final updatedUser = UserModel(
+      id: widget.user.id,
+      nom: _nomController.text,
+      prenom: _prenomController.text,
+      email: _emailController.text,
+      motDePasse: widget.user.motDePasse,
+      telephone: _telephoneController.text,
+      statut: _statutController.text,
+      groupe: _groupeController.text,
+      photo: widget.user.photo,
+    );
 
-        await _userService.updateUser(updatedUser.id!, updatedUser, imageFile);
-
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating user: $e')),
-        );
+    try {
+      html.File? imageFile;
+      if (_imageBytes != null) {
+        imageFile = _convertBytesToFile(_imageBytes!, 'user_image.jpg');
       }
+
+      await _userService.updateUser(updatedUser.id!, updatedUser, imageFile);
+
+      // Afficher un dialogue de succès
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: Text(
+              'Succès',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
+            ),
+            content: Text(
+              'L\'utilisateur a été mis à jour avec succès.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Fermer le dialogue
+                  Navigator.pop(context); // Retourner à la page précédente
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: StadiumBorder(),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      print("Erreur lors du chargement des réponses: $e");
+
+    if (e.toString().contains('Unauthorized') ||
+        e.toString().contains('403')) {
+      _handleSessionExpired() ;
+    } 
     }
   }
+}
+void _handleSessionExpired() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
 
+  Future.delayed(Duration.zero, () {
+    showDialog(
+      context: context,
+      builder: (context) => CustomDialog(
+        title: "Session Expirée",
+        content: "Votre session a expiré. Veuillez vous reconnecter.",
+        buttonText: "OK",
+        onPressed: () {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false, // Redirection vers la page de connexion
+          );
+        },
+      ),
+    );
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,10 +240,59 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
           controller: _telephoneController,
           labelText: 'Telephone',
           hintText: "Entrez votre numéro de téléphone"),
-      CustomTextField(
-          controller: _statutController,
-          labelText: 'Statut',
-          hintText: "Entrez votre statut"),
+    FutureBuilder<String?>(
+  future: SharedPreferences.getInstance()
+      .then((prefs) => prefs.getString('userRole')),
+  builder: (context, snapshot) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Statut',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 4),
+        DropdownButtonFormField<String>(
+          value: _statutController.text.isNotEmpty ? _statutController.text : null,
+          onChanged: (value) {
+            setState(() {
+              _statutController.text = value!;
+            });
+          },
+          items: ['admin', 'superadmin', 'enqueteur']
+              .map((statut) => DropdownMenuItem<String>(
+                    value: statut,
+                    child: Text(statut),
+                  ))
+              .toList(),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Color(0xFFF9F9F9),
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32),
+              borderSide: BorderSide(color: Colors.orange),
+            ),
+          ),
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Veuillez choisir un statut' : null,
+        ),
+      ],
+    );
+  },
+),
+
       CustomTextField(
           controller: _groupeController,
           labelText: 'Groupe',
@@ -202,9 +324,29 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
     const SizedBox(width: 10),
     Expanded(
       child: ElevatedButton(
-        onPressed: () async {
-          // Affiche une boîte de dialogue de confirmation avant de supprimer l'utilisateur
-          final confirmed = await showDialog<bool>(
+       onPressed: () async {
+  final prefs = await SharedPreferences.getInstance();
+  final role = prefs.getString('userRole') ?? '';
+
+  if (role != 'superadmin') {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Accès refusé"),
+        content: Text("Désolé! Vous n'etes pas autorisé à supprimer cet utilisateur."),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      ),
+    );
+    return;
+  }
+
+  final confirmed = await showDialog<bool>(
+
   context: context,
   builder: (BuildContext context) {
     return AlertDialog(

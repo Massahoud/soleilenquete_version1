@@ -60,7 +60,7 @@ class _SurveyPageState extends State<SurveyPage> {
           await surveyService.createSurvey(newSurvey, _imageFile);
 
       if (surveyId != null) {
-        print('Survey envoyé avec succès : $surveyId');
+        print('Survey envoyé avec succès');
       } else {
         print("Erreur : l'ID de l'enquête est null.");
       }
@@ -235,6 +235,7 @@ class _SurveyPageState extends State<SurveyPage> {
       longitude: _tempSurvey!.longitude,
       photoUrl: _tempSurvey!.photoUrl,
       avisEnqueteur: avis,
+      groupe: _tempSurvey!.groupe,
     );
 
     try {
@@ -243,7 +244,7 @@ class _SurveyPageState extends State<SurveyPage> {
      
 
       await _sendAnswersToApi(surveyId);
-      print("Réponses envoyées avec succès.");
+     
     } catch (e) {
       print("Erreur lors de l'envoi des données : $e");
     }

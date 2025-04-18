@@ -1,66 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UpdateEtatPage extends StatefulWidget {
-  @override
-  _UpdateEtatPageState createState() => _UpdateEtatPageState();
-}
+class AjouterGroupePage extends StatelessWidget {
+  const AjouterGroupePage({Key? key}) : super(key: key);
 
-class _UpdateEtatPageState extends State<UpdateEtatPage> {
-  bool isUpdating = false;
-  String statusMessage = "";
+  Future<void> _ajouterGroupe() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<void> updateEnqueteEtat() async {
-    setState(() {
-      isUpdating = true;
-      statusMessage = "Mise à jour en cours...";
-    });
+    try {
+      final querySnapshot = await firestore.collection('enquete').get();
 
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    QuerySnapshot snapshot = await firestore.collection('enquete').get();
+      int compteur = 0;
 
-    for (var doc in snapshot.docs) {
-      var data = doc.data() as Map<String, dynamic>?;
-
-      if (data != null && data.containsKey('date_heure_debut')) {
-        Timestamp timestamp = data['date_heure_debut'];
-        DateTime date = timestamp.toDate();
-        int year = date.year;
-
-        String etat;
-        if (year >= 2021 && year <= 2023) {
-          etat = "Clôturé";
-        } else if (year == 2024) {
-          etat = "En cours";
-        } else {
-          etat = "Nouveau";
+      for (var doc in querySnapshot.docs) {
+        // Vérifie si le champ 'groupe' est déjà présent
+        if (!doc.data().containsKey('groupe')) {
+          await doc.reference.update({'groupe': 'Cud4hIiWaODEW1UafSnc'});
+          compteur++;
         }
-
-        await doc.reference.update({'etat': etat});
       }
-    }
 
-    setState(() {
-      isUpdating = false;
-      statusMessage = "Mise à jour terminée ✅";
-    });
+      print('$compteur documents mis à jour avec groupe: accord');
+    } catch (e) {
+      print('Erreur : $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Mettre à jour l'état des enquêtes")),
+      appBar: AppBar(title: const Text('Ajouter Groupe si absent')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: isUpdating ? null : updateEnqueteEtat,
-              child: Text(isUpdating ? "Mise à jour..." : "Mettre à jour"),
-            ),
-            SizedBox(height: 20),
-            Text(statusMessage, style: TextStyle(fontSize: 16)),
-          ],
+        child: ElevatedButton(
+          onPressed: () async {
+            await _ajouterGroupe();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Documents mis à jour si besoin !')),
+            );
+          },
+          child: const Text('Ajouter "groupe: accord" si manquant'),
         ),
       ),
     );

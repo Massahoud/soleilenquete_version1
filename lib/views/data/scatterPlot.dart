@@ -33,12 +33,13 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
       List<ScatterData> points = [];
 
       for (var item in data) {
-        if (item['total'] == null || item['totale'] == null) {
+        if (item['moyenneali'] == null || item['moyenneviol'] == null) {
           continue;
         }
 
-        double total = item['total'].toDouble();
-        double totale = item['totale'].toDouble();
+       double total = double.parse(item['moyenneali'].toString());
+double totale = double.parse(item['moyenneviol'].toString());
+
         String numero = item['numero'].toString();
         String id = item['id'].toString();
 
@@ -54,7 +55,7 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
         isLoading = false;
       });
 
-      if (e.toString().contains('403')) {
+      if (e.toString().contains('Unauthorized') || e.toString().contains('403')) {
         _showSessionExpiredDialog();
       } else {
         print('Erreur: $e');
@@ -127,8 +128,42 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
     return Scaffold(
       backgroundColor: Colors.grey[100], // Fond personnalisé pour le Scaffold
      
-   appBar: AppBar(
-  backgroundColor: Colors.white,
+  appBar: AppBar(
+  backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+ leading: GestureDetector(
+  onTap: () async {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context); // Retour à la page précédente dans Flutter
+    } else {
+      // Redirection vers l'application React avec le token
+      final prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('authToken'); // Récupérer le token
+
+      if (token != null) {
+        final reactUrl = "https://app.enquetesoleil.com/child?token=$token"; // URL avec le token
+        if (await canLaunch(reactUrl)) {
+          await launch(reactUrl, forceWebView: false); // Lancer l'URL
+        } else {
+          print("Impossible d'ouvrir l'URL");
+        }
+      } else {
+        print("Token non trouvé");
+      }
+    }
+  },
+  child: Container(
+    margin: EdgeInsets.all(8.0), // Espacement autour du cercle
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.grey[300], // Couleur de fond du cercle
+    ),
+    child: Icon(
+      Icons.chevron_left,
+      color: Colors.black, // Couleur de l'icône
+      size: 28, // Taille de l'icône
+    ),
+  ),
+),
   title: Center(
     child: SizedBox(
       width: 500, // Définir une largeur fixe pour la barre de recherche
@@ -159,13 +194,13 @@ class _ScatterPlotPageState extends State<ScatterPlotPage> {
               padding: const EdgeInsets.all(16.0),
               child: SfCartesianChart(
                 primaryXAxis: NumericAxis(
-                  title: AxisTitle(text: 'Alimentation/Pauvreté'),
+                  title: AxisTitle(text: 'Alimentation/Pauvreté/Education'),
                   minimum: 0,
                   maximum: 5,
                   interval: 1,
                 ),
                 primaryYAxis: NumericAxis(
-                  title: AxisTitle(text: 'Violence/Pauvreté'),
+                  title: AxisTitle(text: 'Violence/Pauvreté/Cadre_vie'),
                   minimum: 0,
                   maximum: 5,
                   interval: 1,

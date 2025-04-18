@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-
 import 'dart:html' as html;
-
 import 'package:http_parser/http_parser.dart';
 import '../models/survey_model.dart';
 
@@ -163,6 +160,7 @@ Future<String?> createSurvey(SurveyModel survey, html.File? imageFile) async {
   request.fields['latitude'] = geolocalisation['latitude'].toString();
   request.fields['longitude'] = geolocalisation['longitude'].toString();
   request.fields['prenom_enqueteur'] = survey.prenomEnqueteur;
+  request.fields['groupe'] = survey.groupe;
   request.fields['nom_enqueteur'] = survey.nomEnqueteur;
   request.fields['prenom_enfant'] = survey.prenomEnfant;
   request.fields['nom_enfant'] = survey.nomEnfant;

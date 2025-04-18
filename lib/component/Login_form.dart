@@ -21,7 +21,21 @@ class _LoginFormState extends State<LoginForm> {
   String _errorMessage = '';
   String _email = '';
   String _motDePasse = '';
+  bool _rememberMe = false;
+@override
+void initState() {
+  super.initState();
+  _loadSavedCredentials();
+}
 
+Future<void> _loadSavedCredentials() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    emailController.text = prefs.getString('savedEmail') ?? '';
+    passwordController.text = prefs.getString('savedPassword') ?? '';
+    _rememberMe = emailController.text.isNotEmpty && passwordController.text.isNotEmpty;
+  });
+}
   String? _getRedirectUrl() {
     Uri uri = Uri.parse(html.window.location.href);
     String? redirect = uri.queryParameters['redirect'];
@@ -52,6 +66,17 @@ Future<void> _submitForm() async {
       await _authService.login(_email, _motDePasse);
 
       final prefs = await SharedPreferences.getInstance();
+
+      // Sauvegarder l'email et le mot de passe si "Se souvenir de moi" est coché
+      if (_rememberMe) {
+        await prefs.setString('savedEmail', _email);
+        await prefs.setString('savedPassword', _motDePasse);
+      } else {
+        // Supprimer les informations si "Se souvenir de moi" n'est pas coché
+        await prefs.remove('savedEmail');
+        await prefs.remove('savedPassword');
+      }
+
       String? token = prefs.getString('authToken');
 
       String? redirectUrl = _getRedirectUrl();
@@ -61,17 +86,16 @@ Future<void> _submitForm() async {
         Navigator.pushReplacementNamed(context, '/users');
       }
     } catch (e) {
-      print("Erreur lors de la connexion: $e"); 
+      print("Erreur lors de la connexion: $e");
 
       setState(() {
         _hasError = true;
-        _errorMessage = e.toString().replaceFirst('Exception: ', ''); 
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
       });
     }
   }
 }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,18 +154,15 @@ Future<void> _submitForm() async {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/signup');
-                },
-                child: const Text(
-                  "Créer un compte",
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+               Checkbox(
+              value: _rememberMe,
+              onChanged: (value) {
+                setState(() {
+                  _rememberMe = value!;
+                });
+              },
+            ),
+            const Text("Se souvenir de moi",style: TextStyle(color: Colors.orange)),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/resetPassword');

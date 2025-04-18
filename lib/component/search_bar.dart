@@ -21,14 +21,18 @@ final TextEditingController _searchController = TextEditingController();
     super.initState();
     _user = ProfilService(context).getUserById();
   }
+Future<void> _logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
 
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken'); // Suppression du token
-    Navigator.pushNamedAndRemoveUntil(
-        context, '/login', (route) => false); // Redirection vers login
-  }
-
+  Navigator.pushNamedAndRemoveUntil(
+    context, 
+    '/login', 
+    (route) => false, // Redirection vers la page de connexion
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Column(

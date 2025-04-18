@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soleilenquete/component/sign_up_form.dart';
-class SignUpPages extends StatelessWidget {
+class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -98,7 +98,7 @@ void _showUpdateUserDialog(BuildContext context, UserModel user) {
   showGeneralDialog(
     context: context,
     barrierDismissible: false,
-    barrierColor: Colors.black.withOpacity(0.5), // Ombre en arrière-plan
+    barrierColor: Colors.black.withOpacity(0.5), 
     transitionDuration: Duration(milliseconds: 300),
     pageBuilder: (context, animation, secondaryAnimation) {
       return Align(

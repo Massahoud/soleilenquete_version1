@@ -50,12 +50,18 @@ class _GroupsListPageState extends State<GroupsListPage> {
       );
     }
   }
-   Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken'); // Suppression du token
-    Navigator.pushNamedAndRemoveUntil(
-        context, '/login', (route) => false); // Redirection vers login
-  }
+Future<void> _logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
+
+  Navigator.pushNamedAndRemoveUntil(
+    context, 
+    '/login', 
+    (route) => false, // Redirection vers la page de connexion
+  );
+}
 
   Future<List<UserModel>> _fetchGroupMembers(List<String> memberIds) async {
     List<UserModel> members = [];

@@ -5,7 +5,7 @@ import 'package:soleilenquete/component/search_bar.dart';
 import 'package:soleilenquete/views/HomePage.dart';
 import 'package:soleilenquete/views/question/update_question.dart';
 import 'package:soleilenquete/widget/customDialog.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/question_model.dart';
 import '../../../models/reponse_model.dart';
 import '../../../services/question_service.dart';
@@ -82,7 +82,12 @@ class _QuestionPageState extends State<QuestionsPage> {
 }
 
 
-void showRoleErrorDialog() {
+void showRoleErrorDialog()async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
+ Future.delayed(Duration.zero, () {
   showDialog(
     context: context,
     builder: (context) => CustomDialog(
@@ -92,11 +97,15 @@ void showRoleErrorDialog() {
       onPressed: () {
         Navigator.pushReplacementNamed(context, '/login');
       },
-    ),
-  );
+  ));
+ });
 }
-void showSessionExpiredDialog() {
-
+void showSessionExpiredDialog()async {
+ final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('authToken'); // Suppression du token
+  await prefs.remove('userRole'); // Suppression du rôle de l'utilisateur
+  await prefs.remove('userId'); // Suppression de l'ID de l'utilisateur
+ Future.delayed(Duration.zero, () {
   showDialog(
     context: context,
     builder: (context) => CustomDialog(
@@ -111,8 +120,8 @@ void showSessionExpiredDialog() {
       },
     ),
   );
+});
 }
-
 
 
   @override
